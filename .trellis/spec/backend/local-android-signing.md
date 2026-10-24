@@ -38,9 +38,19 @@ Compare fingerprints after removing separators and normalizing letter case.
 This certificate fingerprint is public verification metadata, not a private key.
 
 The maintainer also stores the same keystore and credential file in
-[tophtab/nga-just-works-signing](https://github.com/tophtab/nga-just-works-signing),
-a separate private repository. Its visibility, a fresh remote clone, file
-equality, and the cloned private-key entry were verified on 2026-09-06.
+[tophtab/signing](https://github.com/tophtab/signing), a separate private
+repository whose default branch is `main`. The former name,
+`tophtab/nga-just-works-signing`, still redirects there, but use the current
+name. Each project has its own subdirectory:
+
+```text
+nga-just-works/nga-just-works-release.p12
+nga-just-works/credentials.env
+```
+
+Its visibility, a fresh remote clone, file equality, and the cloned private-key
+entry were verified on 2026-09-06; the repository name, `main` default branch,
+and `nga-just-works/` layout were re-verified on 2026-10-24.
 
 ## 3. Contracts
 
@@ -50,6 +60,19 @@ equality, and the cloned private-key entry were verified on 2026-09-06.
 - Load the credentials privately into the build process environment. Do not
   print their values, enable shell tracing, put passwords into literal command
   arguments, or copy signing material into the public application's worktree.
+- The `credentials.env` stored in `tophtab/signing` still points
+  `ANDROID_SIGNING_STORE_FILE` at the maintainer's local absolute path. When
+  that local file exists, sourcing the file is enough. When loading the material
+  from a checkout elsewhere, override only the store path after sourcing:
+
+  ```bash
+  set +x
+  set -a
+  . ./nga-just-works/credentials.env
+  set +a
+  export ANDROID_SIGNING_STORE_FILE="$PWD/nga-just-works/nga-just-works-release.p12"
+  ```
+
 - A data-preserving update uses the production applicationId
   `com.github.tophtab.ngajustworks` and the original signing certificate. The
   ordinary `debug` variant has a `.debug` suffix and a different signing key.
