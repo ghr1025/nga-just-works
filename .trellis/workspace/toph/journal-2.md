@@ -75,3 +75,25 @@ Researched issue #10 and original favorite behavior, then restored both original
 ### Status
 
 [OK] **Completed**
+
+
+## Session 78: Reader tab desync when leaving the last page
+<!-- trellis-session: v=2 fp=b0bc3e9599bfafa8 -->
+
+**Date**: 2026-10-24
+**Task**: Reader tab desync when leaving the last page
+**Branch**: `fix/reader-tab-desync`
+
+### Summary
+
+Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground page result adopted during the settle rewrote the reader selection because the outgoing fragment pauses only at the end of the scroll, and the non-animated jump back dispatched (position, 0f), which crosses no tab threshold. Gated adopt's currentPage write on key.page == state.currentPage and moved state-driven jumps through TabLayoutEx.setCurrentItem. Two fail-first reader tests (expected 6 but was 7 / 13); full Debug gate 576 tests and 13 lint reports clean; visual half left unverified per opt-in ADB policy. Specs updated: reader selection ownership + page-tab sync rule.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d6f90812` | fix: keep the reader selection when a late page result arrives |
+
+### Status
+
+[OK] **Completed**
