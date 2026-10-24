@@ -1,0 +1,7 @@
+{"file":".trellis/tasks/10-24-fix-reader-tab-desync/prd.md","reason":"Requirements R1-R5 and acceptance criteria; selection ownership and tab sync are the only goals"}
+{"file":".trellis/tasks/10-24-fix-reader-tab-desync/design.md","reason":"Approved boundary: exact adopt gate and the TabLayoutEx.setCurrentItem sync; rejected alternatives define the stop line"}
+{"file":".trellis/tasks/10-24-fix-reader-tab-desync/research/pager-tab-desync.md","reason":"Verified call chain and ViewPager 1.0.0 / RecyclerTabLayout 1.5.0 behavior behind the race"}
+{"file":".trellis/spec/backend/thread-detail-compat-contract.md","reason":"ArticleReaderSession.adopt, generation/source transitions, anchors and handoff must keep their current rules"}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Foreground ownership, final-page prefetch exclusion and required reader regression tests"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Validation gate commands and opt-in device policy"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Existing article page-tab behavior and TabLayoutEx consumers to preserve"}

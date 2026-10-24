@@ -83,8 +83,11 @@ class ArticleReaderSession @JvmOverloads constructor(query: ArticleQuery, initia
         val anchor = state.pendingAnchor?.let {
             if (transition) it.copy(generation = generation, page = paging.effectivePage) else it
         }
+        // Only follow the result while its page is still selected. A late foreground result
+        // for a page the user has left must not pull the reader back to it.
+        val followsSelection = foreground && key.page == state.currentPage
         state = state.copy(generation = generation, source = paging.source, pageSize = paging.pageSize,
-            currentPage = if (foreground) paging.effectivePage else state.currentPage,
+            currentPage = if (followsSelection) paging.effectivePage else state.currentPage,
             paging = if (foreground || state.paging == null) accepted else state.paging?.copy(
                 totalPages = accepted.totalPages, totalRows = accepted.totalRows), pendingAnchor = anchor)
         if (transition) handoff = data

@@ -61,6 +61,34 @@ class ArticleReaderSessionTest {
         assertEquals(0, session.adopt(session.key(8), page(ArticleSource.READ_PHP, 20, 9, 160), false))
     }
 
+    @Test fun laterSelectionSurvivesResultOfPageTheUserLeft() {
+        val session = session()
+        assertEquals(2, session.adopt(session.key(7), page(ArticleSource.READ_PHP, 20, 7, 120), true))
+        val left = session.key(7)
+        session.select(6)
+        val data = page(ArticleSource.READ_PHP, 20, 7, 140)
+        assertEquals(1, session.adopt(left, data, true))
+        assertEquals(6, session.state().currentPage)
+        assertTrue(session.accepts(left))
+        assertSame(session.state().paging, data.pagingInfo)
+        assertEquals(left.generation, data.pagingInfo?.generation)
+    }
+
+    @Test fun leavingThePageKeepsSelectionWhenTheResultSwitchesSource() {
+        val session = session()
+        val left = session.key(7)
+        session.setAnchor(ArticleAnchor(left.generation, 7, 50120, 120))
+        session.select(6)
+        val aligned = page(ArticleSource.APP_API, 10, 13, 120)
+        assertEquals(2, session.adopt(left, aligned, true))
+        assertEquals(6, session.state().currentPage)
+        assertEquals(ArticleSource.APP_API, session.state().source)
+        assertEquals(10, session.state().pageSize)
+        assertFalse(session.accepts(left))
+        assertEquals(13, session.state().pendingAnchor?.page)
+        assertSame(aligned, session.takeHandoff(session.state().generation, 13))
+    }
+
     @Test fun changedAccountOrToggleResetsSourceAndRejectsInflightPages() {
         val session = session()
         session.adopt(session.key(7), page(ArticleSource.APP_API, 10, 7, 60), true)

@@ -142,7 +142,9 @@ public class ArticleTabFragment extends BaseRxFragment {
         mApplyingState = true;
         mPagerAdapter.updateReaderState(state);
         int selected = mPagerAdapter.positionOfPage(state.currentPage);
-        if (selected >= 0) mViewPager.setCurrentItem(selected, false);
+        // Move through the tab layout so its highlight follows the pager even when the
+        // library's scroll-offset threshold cannot see this non-animated jump.
+        if (selected >= 0) mTabLayout.setCurrentItem(selected, false);
         mCurrentPage = mPagerAdapter.getActualPage(mViewPager.getCurrentItem());
         mTotalPages = state.paging == null || state.paging.totalPages == null ? 0 : state.paging.totalPages;
         mReplyCount = state.paging == null || state.paging.totalRows == null ? 0 : state.paging.totalRows;

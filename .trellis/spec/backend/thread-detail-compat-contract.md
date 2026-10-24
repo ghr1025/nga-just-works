@@ -143,6 +143,11 @@ actions. It is display metadata, not a fabricated server response schema.
   `ArticleShareViewModel.adoptPage` publishes state synchronously; a newly
   created page may consume the handoff before the previous callback returns.
   That previous callback must not reset the new page's READY/loading state.
+- A page result may move the reader selection only while that request's page is
+  still the selected page. A selection the user made after the request was
+  issued wins over a late foreground result. This includes source/layout
+  transitions: they still update source, page size, generation, pending anchor
+  and handoff, but must not pull the pager back to the page the user left.
 - Preserve a usable PID/floor anchor across source changes. At most one extra
   foreground alignment request is allowed; never scan unknown pages or alternate
   indefinitely between sources. If alignment fails, make the unavailable

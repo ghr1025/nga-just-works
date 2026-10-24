@@ -1,0 +1,7 @@
+{"file":".trellis/tasks/10-24-fix-reader-tab-desync/prd.md","reason":"Check every acceptance criterion, including the pre-fix failing test and the preserved foreground alignment case"}
+{"file":".trellis/tasks/10-24-fix-reader-tab-desync/design.md","reason":"Verify design conformance, unrejected alternatives stayed out, and risk claims match the code"}
+{"file":".trellis/tasks/10-24-fix-reader-tab-desync/research/pager-tab-desync.md","reason":"Confirm the fix addresses the documented mechanism rather than only the visible symptom"}
+{"file":".trellis/spec/backend/thread-detail-compat-contract.md","reason":"No regression in source switching, generation bump, anchors, handoff notices or background adoption"}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Regression tests belong in ArticleReaderSessionTest; no prefetch/planner behavior may change"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Run and inspect the combined Debug gate; report device criteria as unverified when not authorized"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Page-tab reselect/long-press behavior and TabLayoutEx API usage remain intact"}

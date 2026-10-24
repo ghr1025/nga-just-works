@@ -451,6 +451,13 @@ reorderableTabRange = 1..tabs.lastIndex
   include it in floor/page calculations.
 - Article pages always use `fragment_article_tab`, with the page tabs at the
   top. Do not add a bottom-tab preference or a second bottom-tab layout.
+- A reader state that selects a page must move the pager through the tab
+  widget: `TabLayoutEx.setCurrentItem(position, false)`. A bare
+  `ViewPager.setCurrentItem` can leave the highlight one page behind, because
+  `RecyclerTabLayout` advances it only from scroll-offset threshold crossings
+  and ignores `onPageSelected` while the pager is not idle. The state-driven
+  jump is not animated, so its final `(position, 0f)` callback crosses no
+  threshold.
 - Retain the existing pull-to-refresh behavior.
 
 ## Article floor overflow menus
