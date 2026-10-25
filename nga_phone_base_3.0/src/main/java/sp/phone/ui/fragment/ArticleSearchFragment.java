@@ -9,7 +9,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment;
+
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderCallbacks;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderShellKt;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderTabsState;
+import kotlin.Unit;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.param.ParamKey;
 import sp.phone.param.ArticleListParam;
@@ -18,11 +25,19 @@ import sp.phone.param.ArticleListParam;
  * Created by Justwen on 2017/11/22.
  */
 
-public class ArticleSearchFragment extends ArticleListFragment {
+public class ArticleSearchFragment extends ArticleListFragment implements MiuixFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_article_list_reply, container, false);
+        View classic = inflater.inflate(R.layout.fragment_article_list_reply, container, false);
+        if (!MiuixChromeKt.isMiuixHost(getActivity())) {
+            return classic;
+        }
+        // A single reply page: Miuix top app bar, no page tabs and no reply button.
+        MiuixReaderCallbacks callbacks = new MiuixReaderCallbacks(
+                index -> Unit.INSTANCE, () -> Unit.INSTANCE, null, null, null, 1L);
+        return MiuixReaderShellKt.miuixReaderShell(classic, classic.findViewById(R.id.swipe_refresh),
+                requireActivity(), new MiuixReaderTabsState(), callbacks);
     }
 
     @Override

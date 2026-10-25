@@ -239,6 +239,11 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
     }
 
     public void setupToolbar(Toolbar toolbar) {
+        // Miuix pages draw their own top app bar from MiuixChromeState; the classic toolbar is
+        // only kept (hidden) for view bindings and must not become the ActionBar.
+        if (isMiuixPage()) {
+            return;
+        }
         if (toolbar != null && getSupportActionBar() == null) {
             setSupportActionBar(toolbar);
             ActionBar actionBar = getSupportActionBar();

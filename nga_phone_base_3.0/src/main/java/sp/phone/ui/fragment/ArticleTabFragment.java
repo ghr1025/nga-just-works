@@ -25,7 +25,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.justwen.androidnga.base.activity.ARouterConstants;
 import com.trello.rxlifecycle2.android.FragmentEvent;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment;
+
 import butterknife.BindView;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderCallbacks;
+import kotlin.Unit;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderShellKt;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderTabsState;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import gov.anzong.androidnga.R;
@@ -58,7 +65,7 @@ import sp.phone.util.StringUtils;
  * Created by Justwen on 2017/7/9.
  */
 
-public class ArticleTabFragment extends BaseRxFragment {
+public class ArticleTabFragment extends BaseRxFragment implements MiuixFragment {
 
     @BindView(R.id.pager)
     public ViewPager mViewPager;
@@ -89,6 +96,9 @@ public class ArticleTabFragment extends BaseRxFragment {
     private int mTotalPages = 1;
     private boolean mApplyingState;
 
+    /** Page tabs of the Miuix shell; null in the classic appearance. */
+    private MiuixReaderTabsState mMiuixTabs;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +114,43 @@ public class ArticleTabFragment extends BaseRxFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_article_tab, container, false);
+        View classic = inflater.inflate(R.layout.fragment_article_tab, container, false);
+        if (!MiuixChromeKt.isMiuixHost(getActivity())) {
+            return classic;
+        }
+        mMiuixTabs = new MiuixReaderTabsState();
+        MiuixReaderCallbacks callbacks = new MiuixReaderCallbacks(
+                index -> {
+                    mViewPager.setCurrentItem(index, false);
+                    return Unit.INSTANCE;
+                },
+                () -> {
+                    scrollCurrentPageToTop();
+                    return Unit.INSTANCE;
+                },
+                null,
+                () -> {
+                    reply();
+                    return Unit.INSTANCE;
+                },
+                () -> {
+                    refreshCurrentPage();
+                    return Unit.INSTANCE;
+                },
+                CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS);
+        return MiuixReaderShellKt.miuixReaderShell(classic, classic.findViewById(R.id.container),
+                requireActivity(), mMiuixTabs, callbacks);
+    }
+
+    /** Mirrors the pager's pages and selection into the Miuix tab row. */
+    private void publishMiuixTabs() {
+        if (mMiuixTabs == null || mPagerAdapter == null) return;
+        java.util.List<String> pages = new java.util.ArrayList<>();
+        for (int i = 0; i < mPagerAdapter.getCount(); i++) {
+            pages.add(String.valueOf(mPagerAdapter.getPageTitle(i)));
+        }
+        mMiuixTabs.setPages(pages);
+        mMiuixTabs.setSelected(mViewPager.getCurrentItem());
     }
 
     @Override
@@ -122,6 +168,7 @@ public class ArticleTabFragment extends BaseRxFragment {
                 mCurrentPage = mPagerAdapter.getActualPage(position);
                 getActivityViewModel().selectPage(mCurrentPage);
                 publishPrefetchPages();
+                publishMiuixTabs();
             }
         });
 
@@ -135,6 +182,7 @@ public class ArticleTabFragment extends BaseRxFragment {
                 CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS, v -> refreshCurrentPage());
         mFabRefreshRepeater.attach(mFab);
         getActivityViewModel().getReaderState().observe(getViewLifecycleOwner(), this::renderReaderState);
+        publishMiuixTabs();
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -153,6 +201,7 @@ public class ArticleTabFragment extends BaseRxFragment {
         mTabLayout.notifyDataSetChanged();
         mApplyingState = false;
         publishPrefetchPages();
+        publishMiuixTabs();
         if (getActivity() != null) getActivity().invalidateOptionsMenu();
     }
 
@@ -166,7 +215,7 @@ public class ArticleTabFragment extends BaseRxFragment {
     }
 
     private void scrollCurrentPageToTop() {
-        mAppBarLayout.setExpanded(true, true);
+        if (mMiuixTabs == null) mAppBarLayout.setExpanded(true, true);
         ArticleListFragment fragment = mPagerAdapter.getCurrentFragment();
         if (fragment != null) {
             fragment.scrollToTop();

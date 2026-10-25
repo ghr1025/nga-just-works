@@ -118,6 +118,12 @@ public class ArticleListActivity extends BaseActivity {
         }
     }
 
+    /** The reader renders with a Miuix shell in the Miuix appearance. */
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(android.R.id.content);

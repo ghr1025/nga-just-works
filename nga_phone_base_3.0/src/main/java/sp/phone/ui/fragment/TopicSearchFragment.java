@@ -144,9 +144,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
         mLoadingView.bindToLifecycle(getViewLifecycleOwner());
-        if (mMiuix == null) {
-            ((BaseActivity) getActivity()).setupToolbar();
-        }
+        ((BaseActivity) getActivity()).setupToolbar();
 
         if (mRequestParam.searchPost > 0) {
             mAdapter = new ReplyListAdapter(getContext());

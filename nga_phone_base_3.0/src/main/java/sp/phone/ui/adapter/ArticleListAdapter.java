@@ -24,6 +24,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderStyle;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.ContextUtils;
@@ -57,6 +58,9 @@ import sp.phone.view.webview.LocalWebView;
  * 帖子详情列表Adapter
  */
 public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.ArticleViewHolder> {
+
+    /** Floors render as Miuix cards when the host uses the Miuix appearance. */
+    private boolean mMiuixStyle;
 
     private static final String DEVICE_TYPE_IOS = "ios";
 
@@ -376,6 +380,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         mWifiConnected = DeviceUtils.isWifiConnected(context);
     }
 
+    /** Called by the hosting fragment before the first bind. */
+    public void setMiuixStyle(boolean miuixStyle) {
+        mMiuixStyle = miuixStyle;
+    }
+
     public void setTopicOwner(String topicOwner) {
         mTopicOwner = topicOwner;
     }
@@ -484,7 +493,9 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             return;
         }
 
-        if (!PhoneConfiguration.getInstance().useSolidColorBackground()) {
+        if (mMiuixStyle) {
+            MiuixReaderStyle.styleFloorCard(holder.itemView);
+        } else if (!PhoneConfiguration.getInstance().useSolidColorBackground()) {
             holder.itemView.setBackgroundResource(ThemeManager.getInstance().getBackgroundColor(position));
         }
 
