@@ -1,6 +1,7 @@
 package gov.anzong.androidnga.activity.compose
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -72,6 +73,16 @@ class SearchActivity : BaseComposeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         viewModel.fid = intent.getIntExtra("fid", 0)
         super.onCreate(savedInstanceState)
+        if (isMiuixStyle) {
+            // The search field lives in the top bar, so the page owns its whole Scaffold.
+            setContent {
+                MiuixSearchPage(
+                    viewModel = viewModel,
+                    onBack = ::finish,
+                    onSearch = { viewModel.query(this, it) },
+                )
+            }
+        }
     }
 
     override fun getTopAppBarData(): TopAppBarData {
