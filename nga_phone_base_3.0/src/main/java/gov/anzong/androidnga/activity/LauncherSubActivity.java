@@ -28,7 +28,7 @@ public class LauncherSubActivity extends BaseActivity {
         mFragmentClass = resolveFragmentClass(fragmentStr);
         super.onCreate(savedInstanceState);
         if (isMiuixPage()) {
-            setContentView(R.layout.activity_miuix_host);
+            setMiuixContentView(R.id.main_content);
         } else {
             setContentView(R.layout.activity_toolbar_template);
             setupToolbar();
@@ -59,10 +59,6 @@ public class LauncherSubActivity extends BaseActivity {
         return isMiuixStyle() && mFragmentClass != null && MiuixFragment.class.isAssignableFrom(mFragmentClass);
     }
 
-    private int containerId() {
-        return isMiuixPage() ? R.id.miuix_container : R.id.main_content;
-    }
-
     private void commitFragment(String fragmentStr) {
         try {
             Object fragment = Class.forName(fragmentStr).newInstance();
@@ -70,13 +66,13 @@ public class LauncherSubActivity extends BaseActivity {
                 mBaseFragment = (BaseFragment) fragment;
                 Bundle bundle = getIntent().getExtras();
                 mBaseFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(containerId(), mBaseFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_content, mBaseFragment).commit();
             } else if (fragment instanceof BasePreferenceFragment) {
-                getSupportFragmentManager().beginTransaction().replace(containerId(), (BasePreferenceFragment)fragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_content, (BasePreferenceFragment)fragment).commit();
             } else {
                 Bundle bundle = getIntent().getExtras();
                 ((Fragment) fragment).setArguments(bundle);
-                getFragmentManager().beginTransaction().replace(containerId(), (Fragment) fragment).commit();
+                getFragmentManager().beginTransaction().replace(R.id.main_content, (Fragment) fragment).commit();
             }
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();

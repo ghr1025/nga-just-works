@@ -5,6 +5,9 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentColor
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
@@ -113,6 +116,7 @@ fun TabLayoutWithPager(
     content: @Composable ((index: Int) -> Unit)? = null,
 ) {
     val pagerState = rememberPagerState(pageCount = { tabs.size }, initialPage = initialPage)
+    val miuixTabs = rememberMiuixTabColors()
     val coroutineScope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
     val edgeThreshold = with(LocalDensity.current) { 56.dp.toPx() }
@@ -364,6 +368,9 @@ fun TabLayoutWithPager(
 
                 Tab(
                     selected = logicalSelectedIndex == index,
+                    selectedContentColor = miuixTabs?.selectedContent ?: LocalContentColor.current,
+                    unselectedContentColor = miuixTabs?.unselectedContent
+                        ?: LocalContentColor.current.copy(alpha = ContentAlpha.medium),
                     onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(index)
@@ -381,14 +388,32 @@ fun TabLayoutWithPager(
                         }
                         .semantics { customActions = accessibilityActions }
                         .then(reorderModifier),
-                    text = { Text(title) },
+                    text = { Text(title, style = miuixTabs?.textStyle ?: LocalTextStyle.current) },
                 )
             }
         }
     }
 
     Column {
-        if (fixed) {
+        if (miuixTabs != null) {
+            // Miuix has no tab row that accepts per-tab gesture modifiers, so the Material row
+            // keeps the reorder logic and takes Miuix colours and a capsule indicator.
+            ScrollableTabRow(
+                selectedTabIndex = rowSelectedIndex,
+                edgePadding = 12.dp,
+                backgroundColor = miuixTabs.background,
+                contentColor = miuixTabs.selectedContent,
+                modifier = Modifier.onGloballyPositioned { tabRowBounds = it.boundsInRoot() },
+                indicator = { tabPositions ->
+                    tabPositions.getOrNull(logicalSelectedIndex)?.let { selectedPosition ->
+                        MiuixTabIndicator(Modifier.tabIndicatorOffset(selectedPosition), miuixTabs.selectedContent)
+                    }
+                },
+                divider = {},
+            ) {
+                tabRowItems()
+            }
+        } else if (fixed) {
             TabRow(
                 selectedTabIndex = logicalSelectedIndex,
                 modifier = Modifier

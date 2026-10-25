@@ -21,11 +21,12 @@ public class SettingsActivity extends BaseActivity {
         setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
         if (isMiuixPage()) {
-            setContentView(R.layout.activity_miuix_host);
-            setupFragment(R.id.miuix_container);
+            setMiuixContentView(R.id.container);
         } else {
             setContentView(R.layout.activity_settings);
-            setupFragment(R.id.container);
+        }
+        setupFragment();
+        if (!isMiuixPage()) {
             setupActionBar();
         }
         if (sRecreated) {
@@ -36,12 +37,12 @@ public class SettingsActivity extends BaseActivity {
             findViewById(android.R.id.content).post(() -> startAnimation(findViewById(android.R.id.content)));
         }
     }
-    private void setupFragment(int containerId) {
+    private void setupFragment() {
         FragmentManager fm = getSupportFragmentManager();
         Fragment settingsFragment = fm.findFragmentByTag(SettingsFragment.class.getSimpleName());
         if (settingsFragment == null) {
             settingsFragment = new SettingsFragment();
-            fm.beginTransaction().replace(containerId, settingsFragment, SettingsFragment.class.getSimpleName()).commit();
+            fm.beginTransaction().replace(R.id.container, settingsFragment, SettingsFragment.class.getSimpleName()).commit();
         }
     }
 

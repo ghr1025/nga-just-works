@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -149,6 +150,18 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         WindowInsetsControllerCompat controller =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         controller.setAppearanceLightNavigationBars(!ThemeManager.getInstance().isNightMode());
+    }
+
+    /**
+     * Hosts a Miuix page in a plain container that keeps [containerId], the id of the classic
+     * layout's fragment container: after an appearance change the FragmentManager restores the
+     * existing fragments into their saved container id.
+     */
+    protected void setMiuixContentView(int containerId) {
+        FrameLayout container = new FrameLayout(this);
+        container.setId(containerId);
+        container.setBackgroundColor(ContextUtils.getColor(R.color.miuix_surface));
+        setContentView(container);
     }
 
     private int pageBackgroundColor() {

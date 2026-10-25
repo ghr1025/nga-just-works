@@ -9,8 +9,11 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
@@ -45,10 +48,20 @@ fun NgaMiuixTheme(content: @Composable () -> Unit) {
     MaterialTheme(colors = materialColors) {
         MiuixTheme(controller = controller) {
             MiuixSystemBars(activity, dark)
-            content()
+            CompositionLocalProvider(LocalNgaMiuixStyle provides true, content = content)
         }
     }
 }
+
+internal val LocalNgaMiuixStyle = staticCompositionLocalOf { false }
+
+/**
+ * True inside [NgaMiuixTheme]. Shared composables that keep one implementation for both
+ * appearances (for example the reorderable board tabs) use it to switch to Miuix tokens.
+ */
+val isMiuixComposition: Boolean
+    @Composable @ReadOnlyComposable
+    get() = LocalNgaMiuixStyle.current
 
 /**
  * Miuix popups and dialogs register `NavigationBackHandler`, which requires the view-tree
