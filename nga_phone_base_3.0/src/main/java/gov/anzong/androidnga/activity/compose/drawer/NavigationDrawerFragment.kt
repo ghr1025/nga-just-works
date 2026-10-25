@@ -73,9 +73,10 @@ class NavigationDrawerFragment : BaseComposeFragment() {
         ViewModelProvider(this).get(NavigationDrawerViewModel::class.java)
     }
 
-    private val forumBoardViewModel: ForumBoardViewModel by lazy {
-        ViewModelProvider(this).get(ForumBoardViewModel::class.java)
-    }
+    // ForumBoardViewModel is an app-wide object (its constructor is private). lifecycle >= 2.9
+    // refuses to reflectively create ViewModels without a public no-arg constructor, so the
+    // singleton is used directly, as every other caller already does.
+    private val forumBoardViewModel: ForumBoardViewModel = ForumBoardViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
