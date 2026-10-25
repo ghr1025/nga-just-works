@@ -33,6 +33,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.justwen.androidnga.base.activity.ARouterConstants
 import com.justwen.androidnga.core.data.MessageArticlePageInfo
 import com.justwen.androidnga.ui.compose.BaseComposeActivity
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import com.justwen.androidnga.ui.compose.widget.PullRefreshColumn
 
 @Route(path = ARouterConstants.ACTIVITY_MESSAGE_DETAIL)
@@ -68,6 +69,12 @@ class MessageDetailActivity : BaseComposeActivity() {
         PullRefreshColumn(columnItem = { MessageListItem(messageInfo = it) },
             lazyPagingItems = items,
             onRefresh = { items.refresh() })
+    }
+
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        val items = viewModel.getMessageDetailData(mid = mid).collectAsLazyPagingItems()
+        com.justwen.androidnga.module.message.compose.MiuixMessageDetailList(page, items, ::startWebView)
     }
 
     private fun startWebView(url: String) {
