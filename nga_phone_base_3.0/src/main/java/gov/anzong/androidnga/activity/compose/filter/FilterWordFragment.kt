@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
 import sp.phone.common.User
 
@@ -52,6 +53,11 @@ class FilterWordFragment : BaseComposeFragment() {
             FilterView(viewModel.filterStateList[it])
         }
 
+    }
+
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        MiuixFilterWordPage(page, viewModel)
     }
 
     @Preview
