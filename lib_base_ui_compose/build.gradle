@@ -51,6 +51,8 @@ dependencies {
     // paging
     implementation "androidx.paging:paging-compose:$paging_version"
 
+    api "top.yukonga.miuix.kmp:miuix-android:$miuix_version"
+    api "top.yukonga.miuix.kmp:miuix-icons-android:$miuix_version"
     implementation project(':lib_base_service_api')
     implementation project(':lib_base_common')
 

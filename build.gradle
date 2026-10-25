@@ -2,7 +2,9 @@ buildscript {
     ext {
         compose_version = '1.6.8'
         compose_ui_version = '1.7.0'
-        compose_activity_version = '1.10.1'
+        compose_activity_version = '1.12.4'
+        // Miuix popups need the view-tree NavigationEventDispatcherOwner set by activity >= 1.12.
+        miuix_version = '0.8.8'
         core_ktx_version = '1.7.0'
         appcompat_version = "1.7.1"
         androidx_material_version = '1.12.0'
