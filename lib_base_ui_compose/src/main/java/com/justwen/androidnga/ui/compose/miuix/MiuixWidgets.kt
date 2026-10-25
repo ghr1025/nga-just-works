@@ -114,7 +114,8 @@ fun <T : Any> MiuixPagingList(
             items.refresh()
         },
         pullToRefreshState = rememberPullToRefreshState(),
-        contentPadding = PaddingValues(top = page.padding.calculateTopPadding()),
+        topAppBarScrollBehavior = page.scrollBehavior,
+        contentPadding = PaddingValues(top = page.padding.calculateTopPadding() + 12.dp),
         modifier = modifier.fillMaxSize(),
     ) {
         when {

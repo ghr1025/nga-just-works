@@ -43,7 +43,6 @@ import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Close
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.miuixCapsuleShape
-import top.yukonga.miuix.kmp.utils.overScrollVertical
 
 /**
  * Miuix search page: capsule search field in the top bar, contour tabs for the search scope,
@@ -82,7 +81,6 @@ internal fun MiuixSearchPage(viewModel: SearchViewModel, onBack: () -> Unit, onS
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = padding.calculateTopPadding())
-                    .overScrollVertical()
                     .verticalScroll(rememberScrollState()),
             ) {
                 TabRowWithContour(

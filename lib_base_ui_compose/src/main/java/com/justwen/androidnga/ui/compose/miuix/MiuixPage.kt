@@ -1,6 +1,7 @@
 package com.justwen.androidnga.ui.compose.miuix
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -29,7 +30,6 @@ import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.utils.overScrollVertical
 import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 
 /** Navigation affordance shown at the start of a Miuix top app bar. */
@@ -80,7 +80,7 @@ fun MiuixPage(
                     MiuixNavigationIcon(navIcon, onNavigationClick)
                 }
             }
-            androidx.compose.foundation.layout.Column {
+            Column {
                 if (largeTitle) {
                     TopAppBar(
                         title = title,
@@ -126,11 +126,11 @@ fun MiuixNavigationIcon(navIcon: MiuixNavIcon, onClick: () -> Unit) {
 }
 
 /**
- * Scroll modifiers every Miuix page list uses: HyperOS overscroll, end-of-list haptic and the
- * collapsing top app bar connection.
+ * Scroll modifiers every Miuix page list uses: end-of-list haptic and the collapsing top app bar
+ * connection, as in the Miuix example pages. The HyperOS overscroll itself comes from
+ * MiuixTheme's LocalOverscrollFactory, so adding overScrollVertical() here would stack it twice.
  */
 internal fun Modifier.miuixPageScroll(scrollBehavior: ScrollBehavior?): Modifier = this
-    .overScrollVertical()
     .scrollEndHaptic()
     .then(if (scrollBehavior != null) Modifier.nestedScroll(scrollBehavior.nestedScrollConnection) else Modifier)
     .fillMaxHeight()

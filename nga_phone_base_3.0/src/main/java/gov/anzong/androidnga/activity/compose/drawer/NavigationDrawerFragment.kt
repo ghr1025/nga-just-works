@@ -97,11 +97,11 @@ class NavigationDrawerFragment : BaseComposeFragment() {
     @Composable
     private fun MiuixHome() {
         val activity = requireActivity()
+        val replyCount by viewModel.replyCount.observeAsState()
         MiuixHomeScreen(
             title = activity.title.toString(),
             menu = getOptionMenuData(),
             forumBoardViewModel = forumBoardViewModel,
-            drawerViewModel = viewModel,
             entries = listOf(
                 MiuixDrawerEntry("登录账号", R.drawable.ic_login) { viewModel.startLoginPage(activity) },
                 MiuixDrawerEntry("添加版面ID", R.drawable.ic_action_add_to_queue) {
@@ -113,7 +113,11 @@ class NavigationDrawerFragment : BaseComposeFragment() {
                 MiuixDrawerEntry("清理收藏板块", R.drawable.ic_action_warning) {
                     viewModel.showClearFavoriteBoards(requireContext())
                 },
-                MiuixDrawerEntry("最近被喷", R.drawable.ic_action_gun) {
+                MiuixDrawerEntry(
+                    "最近被喷",
+                    R.drawable.ic_action_gun,
+                    badge = replyCount?.takeIf { it > 0 }?.toString(),
+                ) {
                     viewModel.startNotificationActivity(activity)
                 },
             ),

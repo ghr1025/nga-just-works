@@ -71,7 +71,6 @@ internal fun MiuixHomeScreen(
     title: String,
     menu: List<OptionMenuData>,
     forumBoardViewModel: ForumBoardViewModel,
-    drawerViewModel: NavigationDrawerViewModel,
     entries: List<MiuixDrawerEntry>,
     footer: MiuixDrawerEntry,
     onAccountClick: (User?, Int) -> Unit,
@@ -87,8 +86,6 @@ internal fun MiuixHomeScreen(
                 MiuixDrawerSheet(
                     entries = entries,
                     footer = footer,
-                    replyCountEntryTitle = "最近被喷",
-                    drawerViewModel = drawerViewModel,
                     onAccountClick = onAccountClick,
                 )
             },
@@ -134,11 +131,8 @@ internal fun MiuixHomeScreen(
 private fun MiuixDrawerSheet(
     entries: List<MiuixDrawerEntry>,
     footer: MiuixDrawerEntry,
-    replyCountEntryTitle: String,
-    drawerViewModel: NavigationDrawerViewModel,
     onAccountClick: (User?, Int) -> Unit,
 ) {
-    val replyCount by drawerViewModel.replyCount.observeAsState()
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Column(
@@ -155,14 +149,7 @@ private fun MiuixDrawerSheet(
                 .verticalScroll(rememberScrollState()),
         ) {
             Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)) {
-                entries.forEach { entry ->
-                    val badge = if (entry.title == replyCountEntryTitle) {
-                        replyCount?.takeIf { it > 0 }?.toString()
-                    } else {
-                        entry.badge
-                    }
-                    DrawerRow(entry, badge)
-                }
+                entries.forEach { entry -> DrawerRow(entry, entry.badge) }
             }
         }
         Card(modifier = Modifier.padding(horizontal = 12.dp)) {
