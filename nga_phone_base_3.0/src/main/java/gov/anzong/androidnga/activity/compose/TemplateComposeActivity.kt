@@ -3,14 +3,26 @@ package gov.anzong.androidnga.activity.compose
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
+import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle
 
 class TemplateComposeActivity : FragmentActivity() {
 
+    /** Appearance the hosted fragment was built with. */
+    private var miuixStyle = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        miuixStyle = NgaUiStyle.isMiuix()
         super.onCreate(savedInstanceState)
         val fragmentStr = intent.getStringExtra("fragment")
         if (fragmentStr != null) {
             commitFragment(fragmentStr)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!isFinishing && miuixStyle != NgaUiStyle.isMiuix()) {
+            recreate()
         }
     }
 

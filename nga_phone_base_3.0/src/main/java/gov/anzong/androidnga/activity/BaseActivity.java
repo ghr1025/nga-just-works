@@ -359,6 +359,10 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         checkUpgrade();
         NotificationController.getInstance().checkNotificationDelay();
         super.onResume();
+        // 外观在别的页面被切换时，返回栈里的页面回到前台再按新外观重建。
+        if (!isFinishing() && mMiuixStyle != ThemeManager.getInstance().isMiuixStyle()) {
+            recreate();
+        }
     }
 
     private void checkUpgrade() {

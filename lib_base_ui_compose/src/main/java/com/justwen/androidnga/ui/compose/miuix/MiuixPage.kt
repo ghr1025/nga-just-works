@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,7 +108,15 @@ fun MiuixPage(
         floatingActionButtonPosition = floatingActionButtonPosition,
         bottomBar = bottomBar,
     ) { padding ->
-        content(MiuixPageContent(padding, scrollBehavior))
+        // Miuix top app bars pad the display cutout and side navigation bars horizontally; the
+        // page body takes the same insets so cards line up with the title in landscape.
+        Box(
+            Modifier.windowInsetsPadding(
+                WindowInsets.displayCutout.union(WindowInsets.navigationBars).only(WindowInsetsSides.Horizontal),
+            ),
+        ) {
+            content(MiuixPageContent(padding, scrollBehavior))
+        }
     }
 }
 

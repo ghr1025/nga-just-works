@@ -36,6 +36,14 @@ abstract class BaseComposeActivity : FragmentActivity(), MiuixChromeOwner {
         buildContentView()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // The appearance may have been switched on another screen; rebuild with the new one.
+        if (!isFinishing && isMiuixStyle != NgaUiStyle.isMiuix()) {
+            recreate()
+        }
+    }
+
     fun buildContentView() {
         if (isMiuixStyle) {
             setContent {
