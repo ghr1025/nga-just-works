@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.miuix.isMiuixComposition
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import com.justwen.androidnga.ui.compose.widget.PagerInteractionState
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
 import com.justwent.androidnga.bu.UserManager

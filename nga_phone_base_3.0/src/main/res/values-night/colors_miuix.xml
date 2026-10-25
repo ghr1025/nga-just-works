@@ -2,10 +2,5 @@
 <!-- Miuix 0.8.8 darkColorScheme() values used by the legacy View fallback of the Miuix appearance. -->
 <resources>
     <color name="miuix_primary">#FF277AF7</color>
-    <color name="miuix_on_primary">#FFFFFFFF</color>
     <color name="miuix_surface">#FF000000</color>
-    <color name="miuix_surface_container">#FF242424</color>
-    <color name="miuix_on_surface">#FFF2F2F2</color>
-    <color name="miuix_on_surface_summary">#80FFFFFF</color>
-    <color name="miuix_divider">#FF393939</color>
 </resources>

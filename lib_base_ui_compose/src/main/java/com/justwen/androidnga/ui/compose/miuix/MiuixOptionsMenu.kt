@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.get
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -92,7 +93,7 @@ private fun buildHostOptionsMenu(activity: Activity): List<MiuixMenuEntry> {
     activity.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, null, menu)
     val entries = ArrayList<MiuixMenuEntry>(menu.size())
     for (index in 0 until menu.size()) {
-        val item = menu.getItem(index)
+        val item = menu[index]
         if (!item.isVisible) continue
         entries += MiuixMenuEntry(
             item = item,

@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,7 +92,7 @@ class MiuixTopicListState {
     var rows by mutableStateOf<List<MiuixTopicRow>>(emptyList())
 
     /** Title size in sp from the existing topic-title-size preference. */
-    var titleSizeSp by mutableStateOf(17f)
+    var titleSizeSp by mutableFloatStateOf(17f)
     var refreshing by mutableStateOf(false)
 
     /** True until the first page arrived (or failed). */

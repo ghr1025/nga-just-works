@@ -3,7 +3,6 @@ package com.justwen.androidnga.ui.compose.miuix
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -87,9 +86,7 @@ private fun MiuixSystemBars(activity: Activity?, dark: Boolean) {
         window.statusBarColor = Color.Transparent.toArgb()
         @Suppress("DEPRECATION")
         window.navigationBarColor = Color.Transparent.toArgb()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isNavigationBarContrastEnforced = false
-        }
+        window.isNavigationBarContrastEnforced = false
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = !dark
             isAppearanceLightNavigationBars = !dark
