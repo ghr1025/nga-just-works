@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
+import com.justwen.androidnga.ui.compose.miuix.isMiuixHost
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
 import com.justwen.androidnga.ui.compose.widget.ScaffoldApp
@@ -82,11 +83,51 @@ class NavigationDrawerFragment : BaseComposeFragment() {
         return ComposeView(inflater.context).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                AppTheme {
-                    NavigationDrawerView()
+                if (isMiuixHost(activity)) {
+                    MiuixHome()
+                } else {
+                    AppTheme {
+                        NavigationDrawerView()
+                    }
                 }
             }
         }
+    }
+
+    @Composable
+    private fun MiuixHome() {
+        val activity = requireActivity()
+        MiuixHomeScreen(
+            title = activity.title.toString(),
+            menu = getOptionMenuData(),
+            forumBoardViewModel = forumBoardViewModel,
+            drawerViewModel = viewModel,
+            entries = listOf(
+                MiuixDrawerEntry("登录账号", R.drawable.ic_login) { viewModel.startLoginPage(activity) },
+                MiuixDrawerEntry("添加版面ID", R.drawable.ic_action_add_to_queue) {
+                    viewModel.showAddBoardDialog(this@NavigationDrawerFragment)
+                },
+                MiuixDrawerEntry("由URL读取", R.drawable.ic_action_forward) {
+                    viewModel.forwardWithUrl(this@NavigationDrawerFragment)
+                },
+                MiuixDrawerEntry("清理收藏板块", R.drawable.ic_action_warning) {
+                    viewModel.showClearFavoriteBoards(requireContext())
+                },
+                MiuixDrawerEntry("最近被喷", R.drawable.ic_action_gun) {
+                    viewModel.startNotificationActivity(activity)
+                },
+            ),
+            footer = MiuixDrawerEntry("关于", R.drawable.ic_action_about) {
+                viewModel.startAboutNgaClient(activity)
+            },
+            onAccountClick = { user, count ->
+                if (count > 0 && user != null) {
+                    viewModel.startProfilePage(activity, user)
+                } else {
+                    viewModel.startLoginPage(activity)
+                }
+            },
+        )
     }
 
     private fun getTopAppBarData(navigationIconAction: (() -> Unit)? = null): TopAppBarData {

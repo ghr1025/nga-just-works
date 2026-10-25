@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
+import com.justwen.androidnga.ui.compose.miuix.isMiuixComposition
 import com.justwen.androidnga.ui.compose.widget.PagerInteractionState
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
 import com.justwent.androidnga.bu.UserManager
@@ -127,6 +128,10 @@ fun ForumBoardView(
 
 @Composable
 fun ForumBoardGroupView(board: BoardEntity, context: Context = ContextUtils.getContext()) {
+    if (isMiuixComposition) {
+        SmallTitle(text = board.name)
+        return
+    }
     Row(modifier = Modifier.padding(16.dp)) {
         Image(
             modifier = Modifier.size(24.dp),
@@ -151,12 +156,14 @@ private fun ForumBoardGridItemView(
 ) {
     val paddingValue = 4.dp
     val imageSize = 48.dp
+    val miuix = isMiuixComposition
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .padding(paddingValue)
             .fillMaxWidth()
+            .then(if (miuix) Modifier.miuixBoardTile() else Modifier)
             .clickable {
                 if (clickEnabled) {
                     forumBoardViewModel.showTopicList(child)
@@ -186,8 +193,9 @@ private fun ForumBoardGridItemView(
         Text(
             modifier = Modifier
                 .padding(top = paddingValue, bottom = paddingValue),
-            color = Color(context.resources.getColor(R.color.text_color, null)),
-            text = child.name
+            color = if (miuix) miuixBoardTextColor() else Color(context.resources.getColor(R.color.text_color, null)),
+            text = child.name,
+            maxLines = if (miuix) 1 else Int.MAX_VALUE,
         )
         Spacer(modifier = Modifier.height(paddingValue))
     }
@@ -258,7 +266,11 @@ fun ForumBoardBookmarkContent(
     Column (Modifier.fillMaxSize()) {
 
         if (UserManager.getUserList().size == 1) {
-            Text(modifier = Modifier.padding(8.dp), text = "建议登录多个账号，可有效改善跳转系统浏览器问题")
+            Text(
+                modifier = Modifier.padding(if (isMiuixComposition) 16.dp else 8.dp),
+                text = "建议登录多个账号，可有效改善跳转系统浏览器问题",
+                color = if (isMiuixComposition) miuixBoardHintColor() else Color.Unspecified,
+            )
         }
 
         LazyVerticalGrid(
