@@ -64,6 +64,16 @@ public class TopicCacheFragment extends TopicSearchFragment implements View.OnLo
     }
 
     @Override
+    public String miuixDeleteConfirmText(ThreadPageInfo info) {
+        return getString(R.string.delete_favo_confirm_text);
+    }
+
+    @Override
+    public void onMiuixDelete(ThreadPageInfo info) {
+        mPresenter.removeCacheTopic(info);
+    }
+
+    @Override
     public boolean onLongClick(final View view) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(this.getString(R.string.delete_favo_confirm_text))

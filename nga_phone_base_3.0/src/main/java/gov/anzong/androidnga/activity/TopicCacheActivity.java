@@ -26,4 +26,9 @@ public class TopicCacheActivity extends BaseActivity {
         fragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commit();
     }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
+    }
 }
