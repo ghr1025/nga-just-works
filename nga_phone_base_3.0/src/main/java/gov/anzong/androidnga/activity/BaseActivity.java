@@ -25,6 +25,8 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.justwen.androidnga.cloud.CloudServerManager;
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner;
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState;
 
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.base.common.SwipeBackHelper;
@@ -40,7 +42,7 @@ import gov.anzong.androidnga.common.util.NLog;
 /**
  * Created by liuboyu on 16/6/28.
  */
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements MiuixChromeOwner {
 
     protected PhoneConfiguration mConfig;
 
@@ -58,9 +60,15 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     private SwipeBackHelper mSwipeBackHelper;
 
+    /** Title and options-menu state published to Miuix pages; unused by the classic UI. */
+    private final MiuixChromeState mMiuixChrome = new MiuixChromeState();
+
+    private boolean mMiuixStyle;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mConfig = PhoneConfiguration.getInstance();
+        mMiuixStyle = ThemeManager.getInstance().isMiuixStyle();
         updateThemeUi();
         super.onCreate(savedInstanceState);
         ThemeManager.getInstance().initializeWebTheme(this);
@@ -106,7 +114,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         if (mSwipeBackHelper != null) {
             mSwipeBackHelper.onPostCreate();
-            mSwipeBackHelper.setContentBackgroundColor(ContextUtils.getColor(R.color.background_color));
+            mSwipeBackHelper.setContentBackgroundColor(ContextUtils.getColor(pageBackgroundColor()));
         }
     }
 
@@ -125,7 +133,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * navigation areas still use the active NGA theme instead of white.
      */
     private void configureSystemBars() {
-        int backgroundColor = ContextUtils.getColor(R.color.background_color);
+        int backgroundColor = ContextUtils.getColor(pageBackgroundColor());
         getWindow().setNavigationBarColor(backgroundColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getWindow().setNavigationBarContrastEnforced(false);
@@ -143,13 +151,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         controller.setAppearanceLightNavigationBars(!ThemeManager.getInstance().isNightMode());
     }
 
+    private int pageBackgroundColor() {
+        return isMiuixPage() ? R.color.miuix_surface : R.color.background_color;
+    }
+
     public void setComposeEnabled(boolean composeEnabled) {
         mComposeEnabled = composeEnabled;
     }
 
     private void enableEdge2Edge() {
         View contentView = findViewById(android.R.id.content);
-        if (mToolbarEnabled && !mComposeEnabled && contentView != null) {
+        if (mToolbarEnabled && !mComposeEnabled && !isMiuixPage() && contentView != null) {
             final int initialPaddingLeft = contentView.getPaddingLeft();
             final int initialPaddingTop = contentView.getPaddingTop();
             final int initialPaddingRight = contentView.getPaddingRight();
@@ -294,7 +306,39 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        view.setFitsSystemWindows(!mToolbarEnabled);
+        view.setFitsSystemWindows(!mToolbarEnabled && !isMiuixPage());
+    }
+
+    /** Whether this Activity was created with the Miuix appearance. */
+    public boolean isMiuixStyle() {
+        return mMiuixStyle;
+    }
+
+    /**
+     * Whether the visible page is drawn by Miuix components, which then own the system-bar
+     * insets and colors. Hosts return true only for pages that have a Miuix implementation, so
+     * the remaining legacy layouts keep the classic inset handling.
+     */
+    protected boolean isMiuixPage() {
+        return false;
+    }
+
+    @NonNull
+    @Override
+    public MiuixChromeState getMiuixChrome() {
+        return mMiuixChrome;
+    }
+
+    @Override
+    protected void onTitleChanged(CharSequence title, int color) {
+        super.onTitleChanged(title, color);
+        mMiuixChrome.updateTitle(title);
+    }
+
+    @Override
+    public void invalidateOptionsMenu() {
+        super.invalidateOptionsMenu();
+        mMiuixChrome.invalidateMenu();
     }
 
     @Override

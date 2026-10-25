@@ -31,6 +31,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             R.style.AppThemeDayNightBlack,
     };
 
+    private boolean mMiuixStyle;
+
     private int mThemeIndex;
 
     private boolean mNightMode;
@@ -53,6 +55,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         } else if (key.equals(PreferenceKey.KEY_NIGHT_MODE_FOLLOW_SYSTEM)) {
             mNightModeFollowSystem = sp.getBoolean(key, Constants.NIGHT_MODE_FOLLOW_SYSTEM_DEFAULT);
             applyDayNight();
+        } else if (key.equals(PreferenceKey.KEY_UI_STYLE)) {
+            mMiuixStyle = readMiuixStyle(sp);
         }
         mWebViewTheme = null;
     }
@@ -69,7 +73,12 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         mNightMode = sp.getBoolean(PreferenceKey.NIGHT_MODE, false);
         mThemeIndex = Integer.parseInt(sp.getString(PreferenceKey.MATERIAL_THEME, Constants.MATERIAL_THEME_DEFAULT));
         mNightModeFollowSystem = sp.getBoolean(PreferenceKey.KEY_NIGHT_MODE_FOLLOW_SYSTEM, Constants.NIGHT_MODE_FOLLOW_SYSTEM_DEFAULT);
+        mMiuixStyle = readMiuixStyle(sp);
         applyDayNightDelay(0);
+    }
+
+    private static boolean readMiuixStyle(SharedPreferences sp) {
+        return Constants.UI_STYLE_MIUIX.equals(sp.getString(PreferenceKey.KEY_UI_STYLE, Constants.UI_STYLE_DEFAULT));
     }
 
     public static ThemeManager getInstance() {
@@ -146,8 +155,18 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         return mWebViewTheme.getQuoteBackgroundColor();
     }
 
+    /**
+     * 外观为 Miuix 时，所有页面改用 Miuix 组件绘制；经典外观保持原有界面不变。
+     */
+    public boolean isMiuixStyle() {
+        return mMiuixStyle;
+    }
+
     @StyleRes
     public int getTheme(boolean toolbarEnabled) {
+        if (mMiuixStyle) {
+            return toolbarEnabled ? R.style.AppThemeDayNightMiuix_NoActionBar : R.style.AppThemeDayNightMiuix;
+        }
         int index = isNightMode() ? 0 : mThemeIndex;
         return toolbarEnabled ? mAppThemes[index] : mAppThemesActionBar[index];
     }

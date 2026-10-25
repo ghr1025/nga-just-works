@@ -14,4 +14,7 @@ interface IThemeManagerService : IProvider {
 
     fun getTheme(): Int
 
+    /** 当前外观是否为 Miuix（HyperOS）风格。 */
+    fun isMiuixStyle(): Boolean
+
 }

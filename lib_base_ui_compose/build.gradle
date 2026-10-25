@@ -53,6 +53,9 @@ dependencies {
 
     api "top.yukonga.miuix.kmp:miuix-android:$miuix_version"
     api "top.yukonga.miuix.kmp:miuix-icons-android:$miuix_version"
+    // Builds the host options menu for Miuix top app bars with the same item semantics as the
+    // classic AppCompat toolbar.
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation project(':lib_base_service_api')
     implementation project(':lib_base_common')
 

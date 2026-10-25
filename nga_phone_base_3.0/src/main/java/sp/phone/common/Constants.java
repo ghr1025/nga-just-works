@@ -28,4 +28,7 @@ public class Constants {
     public static final boolean NOTIFICATION_SOUND_DEFAULT = false;
     public static final String MATERIAL_THEME_DEFAULT = "2";
     public static final boolean NIGHT_MODE_FOLLOW_SYSTEM_DEFAULT = true;
+    public static final String UI_STYLE_CLASSIC = "classic";
+    public static final String UI_STYLE_MIUIX = "miuix";
+    public static final String UI_STYLE_DEFAULT = UI_STYLE_CLASSIC;
 }

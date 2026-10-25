@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        AppCompat fallback for the Miuix appearance. Pages are drawn by Miuix components; this
+        theme only covers platform surfaces they cannot own (AlertDialogs, legacy View widgets)
+        so those match the Miuix scheme instead of the classic brown/green/black palette.
+    -->
+    <style name="AppThemeDayNightMiuix" parent="@style/AppThemeDayNight">
+        <item name="colorPrimary">@color/miuix_primary</item>
+        <item name="colorPrimaryDark">@color/miuix_surface</item>
+        <item name="colorAccent">@color/miuix_primary</item>
+        <item name="android:windowBackground">@color/miuix_surface</item>
+    </style>
+
+    <style name="AppThemeDayNightMiuix.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+</resources>
