@@ -53,6 +53,16 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="ui_style">
+        <item>@string/setting_ui_style_classic</item>
+        <item>@string/setting_ui_style_miuix</item>
+    </string-array>
+
+    <string-array name="ui_style_value" translatable="false">
+        <item>classic</item>
+        <item>miuix</item>
+    </string-array>
+
     <string-array name="material_theme">
         <item>棕色</item>
         <item>绿色</item>
