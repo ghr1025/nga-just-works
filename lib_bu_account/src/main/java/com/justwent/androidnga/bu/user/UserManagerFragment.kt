@@ -35,6 +35,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.justwen.androidnga.base.activity.ARouterConstants
 import com.justwen.androidnga.module.account.R
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import com.justwent.androidnga.bu.UserManager
 import sp.phone.common.User
 
@@ -59,6 +60,17 @@ class UserManagerFragment : BaseComposeFragment() {
                 }
             }
         }
+    }
+
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        MiuixUserManagerPage(
+            page = page,
+            onAddAccount = {
+                ARouter.getInstance().build(ARouterConstants.ACTIVITY_LOGIN).navigation()
+            },
+            onShowProfile = ::showUserProfile,
+        )
     }
 
     @Composable

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.justwen.androidnga.base.activity.ARouterConstants
 import com.justwen.androidnga.ui.compose.BaseComposeActivity
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import gov.anzong.androidnga.base.util.ToastUtils
 
 @Route(path = ARouterConstants.ACTIVITY_DEBUG)
@@ -66,6 +67,11 @@ class DebugActivity : BaseComposeActivity() {
             }
 
         }
+    }
+
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        MiuixDebugPage(page, onShare = ::shareDebugFile)
     }
 
     private fun shareDebugFile() {
