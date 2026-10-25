@@ -19,7 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -74,6 +79,8 @@ fun MiuixPage(
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     bottomBar: @Composable () -> Unit = {},
     topBarExtra: (@Composable () -> Unit)? = null,
+    /** Tap on the top app bar title, like the classic toolbar title click. */
+    onTitleClick: (() -> Unit)? = null,
     content: @Composable (page: MiuixPageContent) -> Unit,
 ) {
     val scrollBehavior = MiuixScrollBehavior()
@@ -86,9 +93,13 @@ fun MiuixPage(
                 }
             }
             Column {
+                // The bar consumes taps on its empty area, so title taps are observed on the
+                // initial pass without consuming them; navigation and action buttons keep theirs.
+                val titleTap = if (onTitleClick == null) Modifier else Modifier.titleTap(onTitleClick)
                 if (largeTitle) {
                     TopAppBar(
                         title = title,
+                        modifier = titleTap,
                         scrollBehavior = scrollBehavior,
                         navigationIcon = navigation,
                         actions = actions,
@@ -96,6 +107,7 @@ fun MiuixPage(
                 } else {
                     SmallTopAppBar(
                         title = title,
+                        modifier = titleTap,
                         scrollBehavior = scrollBehavior,
                         navigationIcon = navigation,
                         actions = actions,
@@ -117,6 +129,20 @@ fun MiuixPage(
         ) {
             content(MiuixPageContent(padding, scrollBehavior))
         }
+    }
+}
+
+/**
+ * Reports a tap on the top bar that no child button consumed (title or empty bar area), the
+ * Miuix equivalent of the classic toolbar title click.
+ */
+private fun Modifier.titleTap(onTap: () -> Unit): Modifier = pointerInput(onTap) {
+    awaitEachGesture {
+        // Final pass: children (navigation/action buttons) have already seen the event and
+        // consumed it if it was theirs.
+        val down = awaitFirstDown(requireUnconsumed = true, pass = PointerEventPass.Final)
+        val up = waitForUpOrCancellation(pass = PointerEventPass.Final)
+        if (up != null && !down.isConsumed) onTap()
     }
 }
 

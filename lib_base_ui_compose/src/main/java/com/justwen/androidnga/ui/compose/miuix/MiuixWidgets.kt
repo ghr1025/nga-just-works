@@ -88,6 +88,29 @@ fun MiuixMessage(
 }
 
 /**
+ * HyperOS pull-to-refresh for a Miuix page body, bound to the page's collapsing top app bar.
+ * [isRefreshing] stays hoisted by the caller; the indicator sits below the top app bar.
+ */
+@Composable
+fun MiuixPullToRefresh(
+    page: MiuixPageContent,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    PullToRefresh(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        pullToRefreshState = rememberPullToRefreshState(),
+        topAppBarScrollBehavior = page.scrollBehavior,
+        contentPadding = PaddingValues(top = page.padding.calculateTopPadding() + 12.dp),
+        modifier = modifier.fillMaxSize(),
+        content = content,
+    )
+}
+
+/**
  * Paged list on a Miuix page: HyperOS pull-to-refresh, card-grouped rows, and loading/error
  * states driven by the paging load state.
  */

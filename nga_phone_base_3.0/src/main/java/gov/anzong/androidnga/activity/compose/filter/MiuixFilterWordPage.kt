@@ -4,12 +4,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
@@ -25,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.justwen.androidnga.ui.compose.miuix.MiuixAddButton
+import com.justwen.androidnga.ui.compose.miuix.MiuixDialogButtons
 import com.justwen.androidnga.ui.compose.miuix.MiuixListCardItem
 import com.justwen.androidnga.ui.compose.miuix.MiuixMessage
 import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
@@ -32,10 +30,8 @@ import com.justwen.androidnga.ui.compose.miuix.miuixListPadding
 import kotlinx.coroutines.launch
 import sp.phone.common.User
 import top.yukonga.miuix.kmp.basic.BasicComponent
-import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.TabRowWithContour
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.extra.SuperDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -165,7 +161,7 @@ private fun FilterDialogs(dialog: FilterDialog?, onDismiss: () -> Unit) {
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
         )
-        DialogButtons(
+        MiuixDialogButtons(
             confirmText = "确定",
             onDismiss = onDismiss,
             onConfirm = {
@@ -180,27 +176,13 @@ private fun FilterDialogs(dialog: FilterDialog?, onDismiss: () -> Unit) {
         summary = (dialog as? FilterDialog.Delete)?.let { "确定要删除屏蔽项 “${it.label}” 吗？" },
         onDismissRequest = onDismiss,
     ) {
-        DialogButtons(
+        MiuixDialogButtons(
             confirmText = "删除",
             onDismiss = onDismiss,
             onConfirm = {
                 (dialog as? FilterDialog.Delete)?.onConfirm?.invoke()
                 onDismiss()
             },
-        )
-    }
-}
-
-@Composable
-internal fun DialogButtons(confirmText: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    Row {
-        TextButton(text = "取消", onClick = onDismiss, modifier = Modifier.weight(1f))
-        Spacer(Modifier.width(20.dp))
-        TextButton(
-            text = confirmText,
-            onClick = onConfirm,
-            modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.textButtonColorsPrimary(),
         )
     }
 }
