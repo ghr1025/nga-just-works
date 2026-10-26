@@ -57,11 +57,11 @@ import com.justwen.androidnga.ui.compose.BaseComposeFragment
 import com.justwen.androidnga.ui.compose.miuix.isMiuixHost
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.AddCircle
+import top.yukonga.miuix.kmp.icon.extended.Community
 import top.yukonga.miuix.kmp.icon.extended.Contacts
 import top.yukonga.miuix.kmp.icon.extended.Delete
 import top.yukonga.miuix.kmp.icon.extended.Info
 import top.yukonga.miuix.kmp.icon.extended.Link
-import top.yukonga.miuix.kmp.icon.extended.Messages
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
 import com.justwen.androidnga.ui.compose.widget.ScaffoldApp
@@ -123,7 +123,7 @@ class NavigationDrawerFragment : BaseComposeFragment() {
                 },
                 MiuixDrawerEntry(
                     "最近被喷",
-                    MiuixIcons.Messages,
+                    MiuixIcons.Community,
                     badge = replyCount?.takeIf { it > 0 }?.toString(),
                 ) {
                     viewModel.startNotificationActivity(activity)
