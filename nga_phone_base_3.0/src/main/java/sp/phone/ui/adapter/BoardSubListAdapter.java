@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.ui.miuix.MiuixListStyle;
 import sp.phone.mvp.model.entity.SubBoard;
 
 /**
@@ -20,6 +21,14 @@ import sp.phone.mvp.model.entity.SubBoard;
  */
 
 public class BoardSubListAdapter extends RecyclerView.Adapter<BoardSubListAdapter.ViewHolderEx> {
+
+    /** Rows render as Miuix cards; set by the hosting fragment before the first bind. */
+    private boolean mMiuixStyle;
+
+    public void setMiuixStyle(boolean miuixStyle) {
+        mMiuixStyle = miuixStyle;
+    }
+
 
     private List<SubBoard> mBoardList;
 
@@ -39,6 +48,9 @@ public class BoardSubListAdapter extends RecyclerView.Adapter<BoardSubListAdapte
     @Override
     public ViewHolderEx onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.fragment_sub_board_item, viewGroup, false);
+        if (mMiuixStyle) {
+            MiuixListStyle.styleRow(view, new int[]{R.id.title}, new int[0]);
+        }
         return new ViewHolderEx(view);
     }
 

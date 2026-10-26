@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.ui.miuix.MiuixListStyle;
 import sp.phone.common.ApiConstants;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.mvp.model.entity.RecentReplyInfo;
@@ -20,6 +21,14 @@ import sp.phone.util.ImageUtils;
 import sp.phone.util.StringUtils;
 
 public class RecentNotificationAdapter extends RecyclerView.Adapter<RecentNotificationAdapter.ViewHolder> {
+
+    /** Rows render as Miuix cards; set by the hosting fragment before the first bind. */
+    private boolean mMiuixStyle;
+
+    public void setMiuixStyle(boolean miuixStyle) {
+        mMiuixStyle = miuixStyle;
+    }
+
 
     private List<RecentReplyInfo> mRecentReplyList;
 
@@ -48,7 +57,11 @@ public class RecentNotificationAdapter extends RecyclerView.Adapter<RecentNotifi
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.list_recent_notification_item, parent, false));
+        View view = LayoutInflater.from(mContext).inflate(R.layout.list_recent_notification_item, parent, false);
+        if (mMiuixStyle) {
+            MiuixListStyle.styleRow(view, new int[]{R.id.tv_topic}, new int[]{R.id.tv_user_name});
+        }
+        return new ViewHolder(view);
     }
 
     @Override
