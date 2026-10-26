@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import butterknife.BindView;
 import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
+import gov.anzong.androidnga.ui.miuix.MiuixProfileStyle;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -149,6 +150,7 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             // Miuix top app bar above the classic profile; the avatar header stays as content
             // and its own toolbar row is hidden.
             classic.findViewById(R.id.toolbar).setVisibility(View.GONE);
+            MiuixProfileStyle.style(classic);
             setContentView(MiuixViewShellKt.miuixViewShell(this, classic, classic));
         } else {
             setContentView(classic);
@@ -457,6 +459,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
         } else {
             bgColor = getResources().getColor(R.color.profilebgcolor);
         }
+        if (isMiuixPage()) {
+            int[] miuix = MiuixProfileStyle.webColors(contentTV);
+            bgColor = miuix[0];
+            fgColor = miuix[1];
+        }
         bgColor = bgColor & 0xffffff;
         final String bgcolorStr = String.format("%06x", bgColor);
 
@@ -480,6 +487,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             bgColor = getResources().getColor(R.color.profilebgcolor);
             fgColor = getResources().getColor(R.color.profilefcolor);
         }
+        if (isMiuixPage()) {
+            int[] miuix = MiuixProfileStyle.webColors(contentTV);
+            bgColor = miuix[0];
+            fgColor = miuix[1];
+        }
         bgColor = bgColor & 0xffffff;
         final String bgcolorStr = String.format("%06x", bgColor);
 
@@ -501,6 +513,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
         } else {
             bgColor = getResources().getColor(R.color.profilebgcolor);
             fgColor = getResources().getColor(R.color.profilefcolor);
+        }
+        if (isMiuixPage()) {
+            int[] miuix = MiuixProfileStyle.webColors(contentTV);
+            bgColor = miuix[0];
+            fgColor = miuix[1];
         }
         bgColor = bgColor & 0xffffff;
         final String bgcolorStr = String.format("%06x", bgColor);
