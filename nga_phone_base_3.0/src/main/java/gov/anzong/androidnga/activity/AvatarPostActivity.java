@@ -147,7 +147,7 @@ public class AvatarPostActivity extends BaseActivity implements
             // Miuix top app bar above the classic form (this screen uses the window ActionBar
             // in the classic appearance).
             v.setBackgroundColor(getResources().getColor(R.color.miuix_surface));
-            this.setContentView(MiuixViewShellKt.miuixViewShell(this, v, v, false, null));
+            this.setContentView(MiuixViewShellKt.miuixViewShell(this, v, v));
         } else {
             v.setBackgroundColor(getResources().getColor(
                     ThemeManager.getInstance().getBackgroundColor()));

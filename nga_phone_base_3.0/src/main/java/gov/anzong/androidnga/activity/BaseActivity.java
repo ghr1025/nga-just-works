@@ -177,7 +177,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
             return;
         }
         View content = classic.findViewById(contentId);
-        setContentView(MiuixViewShellKt.miuixViewShell(this, classic, content != null ? content : classic, false, null));
+        setContentView(MiuixViewShellKt.miuixViewShell(this, classic, content != null ? content : classic));
     }
 
     private int pageBackgroundColor() {

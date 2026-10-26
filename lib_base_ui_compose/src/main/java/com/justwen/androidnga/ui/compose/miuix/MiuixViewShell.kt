@@ -21,27 +21,33 @@ import androidx.compose.ui.viewinterop.AndroidView
  * The classic root stays attached but hidden until the first composition, so view bindings made
  * right after inflation still resolve; the page then moves [content] into its body. Use it for
  * screens whose content is plain Views (forms, WebViews, pagers) that keep their logic.
+ *
+ * This is the View-facing entry point, called from Java and from modules without the Compose
+ * compiler (lib_base_ui). Its JVM signature must not contain Compose types: such a module
+ * compiles a `@Composable` lambda parameter as Function0 while this library exports the
+ * transformed Function2(Composer, Int), which fails at runtime with NoSuchMethodError.
  */
+@JvmOverloads
 fun miuixViewShell(
     activity: Activity,
     classicRoot: View,
     content: View,
     largeTitle: Boolean = false,
-    floatingAction: (@Composable () -> Unit)? = null,
 ): View {
     classicRoot.visibility = View.GONE
     val compose = ComposeView(activity).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             NgaMiuixTheme {
-                MiuixViewShellPage(activity, content, largeTitle, floatingAction)
+                MiuixViewShellPage(activity, content, largeTitle)
             }
         }
     }
     return FrameLayout(activity).apply {
-        if (classicRoot !== content) {
-            addView(classicRoot, ViewGroup.LayoutParams(0, 0))
-        }
+        // Always attach the classic tree now, even when it is the content itself: callers bind
+        // views (ButterKnife, findViewById) right after setContentView, before the first
+        // composition moves [content] into the Miuix page body.
+        addView(classicRoot, ViewGroup.LayoutParams(0, 0))
         addView(compose, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
     }
 }
@@ -51,7 +57,6 @@ private fun MiuixViewShellPage(
     activity: Activity,
     content: View,
     largeTitle: Boolean,
-    floatingAction: (@Composable () -> Unit)?,
 ) {
     val chrome = (activity as? MiuixChromeOwner)?.miuixChrome
     val menu = rememberHostOptionsMenu(activity)
@@ -63,7 +68,6 @@ private fun MiuixViewShellPage(
             (activity as? ComponentActivity)?.onBackPressedDispatcher?.onBackPressed() ?: activity.finish()
         },
         actions = { MiuixHostMenuActions(activity, menu) },
-        floatingActionButton = { floatingAction?.invoke() },
     ) { page ->
         Box(
             modifier = Modifier

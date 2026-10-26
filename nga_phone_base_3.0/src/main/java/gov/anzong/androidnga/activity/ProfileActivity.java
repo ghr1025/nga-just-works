@@ -149,7 +149,7 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             // Miuix top app bar above the classic profile; the avatar header stays as content
             // and its own toolbar row is hidden.
             classic.findViewById(R.id.toolbar).setVisibility(View.GONE);
-            setContentView(MiuixViewShellKt.miuixViewShell(this, classic, classic, false, null));
+            setContentView(MiuixViewShellKt.miuixViewShell(this, classic, classic));
         } else {
             setContentView(classic);
         }
