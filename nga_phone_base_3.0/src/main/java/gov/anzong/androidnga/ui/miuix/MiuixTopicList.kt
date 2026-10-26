@@ -75,7 +75,13 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
  * underline and the trailing type markers) produced by the classic TopicTitleHelper.
  */
 class MiuixTopicRow(
-    val key: Any,
+    /** The source item; handed back to the fragment on clicks and deletes. */
+    val source: Any,
+    /**
+     * LazyColumn key. Android requires keys to be Bundle-storable, so this is a String, unique
+     * per row of one list.
+     */
+    val key: String,
     val title: CharSequence,
     val author: String?,
     val lastReply: String?,

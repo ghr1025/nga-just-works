@@ -12,9 +12,10 @@ import sp.phone.util.StringUtils
 object MiuixTopicRows {
 
     @JvmStatic
-    fun topics(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = list.orEmpty().map { info ->
+    fun topics(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = keyed(list).map { (info, key) ->
         MiuixTopicRow(
-            key = info,
+            source = info,
+            key = key,
             title = TopicTitleHelper.handleTitleFormat(info),
             author = info.author,
             lastReply = info.lastPoster,
@@ -24,10 +25,11 @@ object MiuixTopicRows {
 
     /** Reply search results: the reply text with its topic and time, as ReplyListAdapter shows. */
     @JvmStatic
-    fun replies(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = list.orEmpty().mapNotNull { info ->
+    fun replies(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = keyed(list).mapNotNull { (info, key) ->
         val reply = info.replyInfo ?: return@mapNotNull null
         MiuixTopicRow(
-            key = info,
+            source = info,
+            key = key,
             title = reply.content.orEmpty(),
             author = null,
             lastReply = null,
@@ -43,5 +45,19 @@ object MiuixTopicRows {
     fun titleSize(): Float = PhoneConfiguration.getInstance().topicTitleSize
 
     @JvmStatic
-    fun info(row: MiuixTopicRow): ThreadPageInfo = row.key as ThreadPageInfo
+    fun info(row: MiuixTopicRow): ThreadPageInfo = row.source as ThreadPageInfo
+
+    /**
+     * Pairs each item with a String key derived from what ThreadPageInfo.equals compares
+     * (tid, pid, cache entry). Repeats inside one list get an occurrence suffix, so keys stay
+     * unique even if the adapter holds equal items.
+     */
+    internal fun keyed(list: List<ThreadPageInfo>?): List<Pair<ThreadPageInfo, String>> {
+        val seen = HashMap<String, Int>()
+        return list.orEmpty().map { info ->
+            val base = "${info.tid}:${info.pid}:${info.cacheEntry?.hashCode() ?: 0}"
+            val n = seen.merge(base, 1, Int::plus) ?: 1
+            info to if (n == 1) base else "$base#$n"
+        }
+    }
 }
