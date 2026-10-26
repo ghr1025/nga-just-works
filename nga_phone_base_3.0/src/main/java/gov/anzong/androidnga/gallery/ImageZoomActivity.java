@@ -58,6 +58,11 @@ public class ImageZoomActivity extends BaseActivity {
         setClassicOrMiuixContentView(R.layout.activity_image_zoom, R.id.gallery_fl);
         receiveIntent();
         initBottomView();
+        if (isMiuixPage()) {
+            // Loading spinner in the Miuix primary colour; the page itself is the Miuix surface.
+            mProgressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.miuix_primary)));
+        }
         initGallery();
         initActionBar();
 

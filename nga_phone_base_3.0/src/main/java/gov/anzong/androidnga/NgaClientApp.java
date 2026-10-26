@@ -45,6 +45,9 @@ public class NgaClientApp extends Application {
         MiuixMenuIcons.registerMenuItem(R.id.delete_all, R.drawable.ic_miuix_delete);
         MiuixMenuIcons.registerMenuItem(R.id.menu_send_message, R.drawable.ic_miuix_email);
         MiuixMenuIcons.registerIcon(R.drawable.btn_ic_search, R.drawable.ic_miuix_search);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_download, R.drawable.ic_miuix_download);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_share, R.drawable.ic_miuix_share);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_download_all, R.drawable.ic_miuix_download);
     }
 
     @Override
