@@ -27,9 +27,21 @@ object MiuixTransitions {
         this.closeExit = closeExit
     }
 
-    /** Applies the Miuix open/close transitions to [activity]; call from onCreate. */
+    /**
+     * Applies the Miuix open/close transitions to [activity]; call from onCreate.
+     *
+     * The manifest themes carry windowIsTranslucent (for the classic swipe back), and the system
+     * neither hides nor animates the page underneath a translucent activity, so the underlying
+     * page would stay still instead of shifting left. [opaqueWindow] converts the activity to
+     * opaque (API 30+) so both pages animate; pass false while an in-app swipe back needs the
+     * page underneath to stay visible.
+     */
     @JvmStatic
-    fun apply(activity: Activity) {
+    @JvmOverloads
+    fun apply(activity: Activity, opaqueWindow: Boolean = true) {
+        if (opaqueWindow && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity.setTranslucent(false)
+        }
         if (openEnter == 0) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, openEnter, openExit)

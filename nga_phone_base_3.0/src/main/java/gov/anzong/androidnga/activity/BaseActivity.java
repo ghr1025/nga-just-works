@@ -74,12 +74,13 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         mMiuixStyle = ThemeManager.getInstance().isMiuixStyle();
         updateThemeUi();
         super.onCreate(savedInstanceState);
-        if (mMiuixStyle) {
-            MiuixTransitions.apply(this);
-        }
         ThemeManager.getInstance().initializeWebTheme(this);
 
         setupSwipeBack();
+        if (mMiuixStyle) {
+            // The swipe back reveals the page underneath, which needs a translucent window.
+            MiuixTransitions.apply(this, mSwipeBackHelper == null);
+        }
 
         try {
             configureSystemBars();
