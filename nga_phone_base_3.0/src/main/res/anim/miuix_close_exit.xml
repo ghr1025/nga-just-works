@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Miuix back: the closing page leaves to the right while fading out. -->
+<!-- Miuix back, same as Miuix NavDisplay: the closing page slides out to the right, opaque.
+     No alpha (see miuix_open_enter); the backdrop is the page colour so nothing grey shows
+     behind the windows while they move. -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:duration="500"
     android:interpolator="@interpolator/miuix_nav_easing"
     android:shareInterpolator="true"
+    android:showBackdrop="true"
+    android:backdropColor="@color/miuix_surface"
     android:zAdjustment="top">
     <translate android:fromXDelta="0" android:toXDelta="100%" />
-    <alpha android:fromAlpha="1.0" android:toAlpha="0.4" />
 </set>

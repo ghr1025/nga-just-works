@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Miuix open: the new page enters from the right while fading in. -->
+<!-- Miuix open, same as Miuix NavDisplay: the new page slides in from the right, opaque.
+     No alpha: on HyperOS a fading top window composites with the page underneath and ghosts. -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:duration="500"
     android:interpolator="@interpolator/miuix_nav_easing"
     android:shareInterpolator="true"
+    android:showBackdrop="true"
+    android:backdropColor="@color/miuix_surface"
     android:zAdjustment="top">
     <translate android:fromXDelta="100%" android:toXDelta="0" />
-    <alpha android:fromAlpha="0.4" android:toAlpha="1.0" />
 </set>
