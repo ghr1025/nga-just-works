@@ -16,6 +16,7 @@ import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import com.justwen.androidnga.ui.compose.miuix.MiuixPageBox
 import com.justwen.androidnga.ui.compose.miuix.MiuixScaffoldApp
 import com.justwen.androidnga.ui.compose.miuix.NgaMiuixTheme
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions
 import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
@@ -33,6 +34,9 @@ abstract class BaseComposeActivity : FragmentActivity(), MiuixChromeOwner {
         isMiuixStyle = NgaUiStyle.isMiuix()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        if (isMiuixStyle) {
+            MiuixTransitions.apply(this)
+        }
         buildContentView()
     }
 

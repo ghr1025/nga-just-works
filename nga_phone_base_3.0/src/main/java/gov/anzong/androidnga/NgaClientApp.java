@@ -2,6 +2,7 @@ package gov.anzong.androidnga;
 
 import android.app.Application;
 import com.justwen.androidnga.ui.compose.miuix.MiuixMenuIcons;
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
 import android.os.Process;
 import android.webkit.WebView;
 
@@ -57,6 +58,8 @@ public class NgaClientApp extends Application {
         initCoreModule();
         initRouter();
         registerMiuixIcons();
+        MiuixTransitions.register(R.anim.miuix_open_enter, R.anim.miuix_open_exit,
+                R.anim.miuix_close_enter, R.anim.miuix_close_exit);
         checkIn();
         super.onCreate();
 

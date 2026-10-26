@@ -17,6 +17,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.justwen.androidnga.base.service.api.IThemeManagerService
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions
 import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle
 import com.justwen.androidnga.ui.compose.miuix.miuixViewShell
 
@@ -33,6 +34,9 @@ abstract class BaseActivity : AppCompatActivity(), MiuixChromeOwner {
         isMiuixStyle = NgaUiStyle.isMiuix()
         initTheme()
         super.onCreate(savedInstanceState)
+        if (isMiuixStyle) {
+            MiuixTransitions.apply(this)
+        }
         initContentView()
         initHandleBackEvent()
         initEdgeToEdge()

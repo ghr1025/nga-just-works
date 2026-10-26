@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.justwen.androidnga.cloud.CloudServerManager;
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner;
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState;
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
 import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
 
 import gov.anzong.androidnga.R;
@@ -73,6 +74,9 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         mMiuixStyle = ThemeManager.getInstance().isMiuixStyle();
         updateThemeUi();
         super.onCreate(savedInstanceState);
+        if (mMiuixStyle) {
+            MiuixTransitions.apply(this);
+        }
         ThemeManager.getInstance().initializeWebTheme(this);
 
         setupSwipeBack();
