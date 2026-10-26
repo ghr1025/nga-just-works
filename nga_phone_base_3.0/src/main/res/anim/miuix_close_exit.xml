@@ -3,11 +3,13 @@
      No alpha (see miuix_open_enter); the backdrop is the page colour so nothing grey shows
      behind the windows while they move. -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:duration="500"
     android:interpolator="@interpolator/miuix_nav_easing"
     android:shareInterpolator="true"
     android:showBackdrop="true"
     android:backdropColor="@color/miuix_surface"
-    android:zAdjustment="top">
+    android:zAdjustment="top"
+    tools:ignore="UnusedAttribute">
     <translate android:fromXDelta="0" android:toXDelta="100%" />
 </set>
