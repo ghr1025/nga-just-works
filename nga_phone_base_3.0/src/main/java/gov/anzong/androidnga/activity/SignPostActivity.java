@@ -14,6 +14,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.ActionBar;
 
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.ui.miuix.MiuixEditorStyle;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import gov.anzong.androidnga.util.ToastUtils;
 import sp.phone.common.UserManagerImpl;
@@ -36,6 +37,9 @@ public class SignPostActivity extends BaseActivity {
         setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
         setClassicOrMiuixContentView(R.layout.activity_change_sign_reply, R.id.reply_body_edittext_container);
+        if (isMiuixPage()) {
+            MiuixEditorStyle.styleForm(findViewById(R.id.reply_body_edittext_container));
+        }
         initBodyText();
         mPostParam = new SignPostParam();
         mPostParam.setUid(UserManagerImpl.getInstance().getUserId());

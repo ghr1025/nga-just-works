@@ -28,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.util.HashSet;
 
 import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
+import gov.anzong.androidnga.ui.miuix.MiuixEditorStyle;
 
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.util.ToastUtils;
@@ -146,7 +147,7 @@ public class AvatarPostActivity extends BaseActivity implements
         if (isMiuixPage()) {
             // Miuix top app bar above the classic form (this screen uses the window ActionBar
             // in the classic appearance).
-            v.setBackgroundColor(getResources().getColor(R.color.miuix_surface));
+            MiuixEditorStyle.styleForm(v);
             this.setContentView(MiuixViewShellKt.miuixViewShell(this, v, v));
         } else {
             v.setBackgroundColor(getResources().getColor(
@@ -165,7 +166,7 @@ public class AvatarPostActivity extends BaseActivity implements
         submit_button = (Button) findViewById(R.id.submit_button);
         titleText.setSelected(true);
         ThemeManager tm = ThemeManager.getInstance();
-        if (tm.isNightMode()) {
+        if (tm.isNightMode() && !isMiuixPage()) {
             titleText.setBackgroundResource(tm.getBackgroundColor());
             int textColor = this.getResources().getColor(
                     tm.getForegroundColor());
