@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Miuix dialog secondary button (cancel): grey capsule, ripple on press. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#14000000">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="@color/miuix_dialog_button_secondary" />
+        </shape>
+    </item>
+</ripple>

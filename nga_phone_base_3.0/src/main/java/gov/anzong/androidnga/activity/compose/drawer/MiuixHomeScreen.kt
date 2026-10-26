@@ -61,7 +61,9 @@ internal class MiuixDrawerEntry(
     val icon: ImageVector,
     val badge: String? = null,
     val onClick: () -> Unit,
-)
+) {
+    fun copyWithClick(click: () -> Unit) = MiuixDrawerEntry(title, icon, badge, click)
+}
 
 /**
  * Miuix home: the board pager under a small Miuix top app bar, inside the existing
@@ -84,9 +86,15 @@ internal fun MiuixHomeScreen(
             drawerState = drawerState,
             gestureState = gestureState,
             drawerContent = {
+                // Close the drawer before an entry runs, so pages open from the home screen and
+                // dialogs are not dimmed twice by the drawer scrim.
+                fun closingThen(action: () -> Unit): () -> Unit = {
+                    scope.launch { drawerState.close() }
+                    action()
+                }
                 MiuixDrawerSheet(
-                    entries = entries,
-                    footer = footer,
+                    entries = entries.map { it.copyWithClick(closingThen(it.onClick)) },
+                    footer = footer.copyWithClick(closingThen(footer.onClick)),
                     onAccountClick = onAccountClick,
                 )
             },
