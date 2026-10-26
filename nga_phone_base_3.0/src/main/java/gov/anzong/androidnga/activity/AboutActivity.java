@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.danielstone.materialaboutlibrary.MaterialAboutActivity;
 
 import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
+import com.justwen.androidnga.ui.compose.miuix.PredictiveBack;
 import gov.anzong.androidnga.ui.miuix.MiuixAboutPage;
 import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem;
 import com.danielstone.materialaboutlibrary.items.MaterialAboutItemOnClickAction;
@@ -42,6 +43,7 @@ public class AboutActivity extends MaterialAboutActivity {
         mMiuixStyle = ThemeManager.getInstance().isMiuixStyle();
         ThemeManager.getInstance().applyAboutTheme(this);
         super.onCreate(savedInstanceState);
+        PredictiveBack.install(this);
         if (mMiuixStyle) {
             MiuixTransitions.apply(this);
             // Same MaterialAboutList, rendered with Miuix cards.

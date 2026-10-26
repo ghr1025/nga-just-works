@@ -89,6 +89,9 @@ public class PreferenceKey {
     /** 外观："classic" 为原有界面，"miuix" 为 HyperOS 风格界面。 */
     public static final String KEY_UI_STYLE = "key_ui_style";
 
+    /** Predictive back gesture; off by default (see PredictiveBack in lib_base_ui_compose). */
+    public static final String KEY_PREDICTIVE_BACK = "key_predictive_back";
+
     public static final String VERSION_MAJOR_CODE = "version_major_code";
 
     public static final String VERSION_MIRROR_CODE = "version_mirror_code";

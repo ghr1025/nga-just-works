@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
 import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions
+import com.justwen.androidnga.ui.compose.miuix.PredictiveBack
 import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle
 
 class TemplateComposeActivity : FragmentActivity() {
@@ -14,6 +15,7 @@ class TemplateComposeActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         miuixStyle = NgaUiStyle.isMiuix()
         super.onCreate(savedInstanceState)
+        PredictiveBack.install(this)
         if (miuixStyle) {
             MiuixTransitions.apply(this)
         }

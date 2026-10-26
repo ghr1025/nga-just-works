@@ -29,6 +29,7 @@ import com.justwen.androidnga.cloud.CloudServerManager;
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner;
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState;
 import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
+import com.justwen.androidnga.ui.compose.miuix.PredictiveBack;
 import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
 
 import gov.anzong.androidnga.R;
@@ -74,6 +75,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         mMiuixStyle = ThemeManager.getInstance().isMiuixStyle();
         updateThemeUi();
         super.onCreate(savedInstanceState);
+        // First back callback, so page-specific callbacks added later still run before it.
+        PredictiveBack.install(this);
         ThemeManager.getInstance().initializeWebTheme(this);
 
         setupSwipeBack();

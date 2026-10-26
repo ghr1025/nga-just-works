@@ -18,6 +18,7 @@ import com.justwen.androidnga.base.service.api.IThemeManagerService
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState
 import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions
+import com.justwen.androidnga.ui.compose.miuix.PredictiveBack
 import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle
 import com.justwen.androidnga.ui.compose.miuix.miuixViewShell
 
@@ -34,6 +35,8 @@ abstract class BaseActivity : AppCompatActivity(), MiuixChromeOwner {
         isMiuixStyle = NgaUiStyle.isMiuix()
         initTheme()
         super.onCreate(savedInstanceState)
+        // Before initHandleBackEvent, so that callback keeps running first.
+        PredictiveBack.install(this)
         if (isMiuixStyle) {
             MiuixTransitions.apply(this)
         }
