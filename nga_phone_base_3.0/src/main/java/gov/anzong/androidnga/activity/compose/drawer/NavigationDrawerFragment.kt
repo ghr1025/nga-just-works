@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -106,6 +107,9 @@ class NavigationDrawerFragment : BaseComposeFragment() {
     private fun MiuixHome() {
         val activity = requireActivity()
         val replyCount by viewModel.replyCount.observeAsState()
+        val users by UserManager.getUserListLiveData().observeAsState(emptyList())
+        // Accounts logged in on this device have no avatar until their profile is fetched.
+        LaunchedEffect(users.map { it.userId to it.avatarUrl }) { DrawerAvatarLoader.loadMissing() }
         MiuixHomeScreen(
             title = activity.title.toString(),
             menu = getOptionMenuData(),

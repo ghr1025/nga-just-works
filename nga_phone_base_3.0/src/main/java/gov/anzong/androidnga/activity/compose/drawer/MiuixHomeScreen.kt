@@ -204,16 +204,21 @@ private fun MiuixAccountCard(onAccountClick: (User?, Int) -> Unit) {
             onClick = { onAccountClick(user, count) },
             startAction = {
                 val avatar = user?.avatarUrl
+                // A logged-in account without an uploaded avatar shows NGA's default avatar, the
+                // same image the profile page and floors use; the grey silhouette stays for
+                // the logged-out state.
+                val fallback = if (user != null) {
+                    painterResource(com.justwen.androidnga.module.message.R.drawable.default_avatar)
+                } else {
+                    painterResource(R.drawable.drawerdefaulticon)
+                }
                 Image(
                     painter = if (avatar.isNullOrEmpty()) {
-                        painterResource(R.drawable.drawerdefaulticon)
+                        fallback
                     } else {
-                        rememberAsyncImagePainter(
-                            model = avatar,
-                            placeholder = painterResource(R.drawable.drawerdefaulticon),
-                        )
+                        rememberAsyncImagePainter(model = avatar, placeholder = fallback, error = fallback)
                     },
-                    colorFilter = if (avatar.isNullOrEmpty()) ColorFilter.tint(colors.onSurfaceVariantSummary) else null,
+                    colorFilter = if (user == null) ColorFilter.tint(colors.onSurfaceVariantSummary) else null,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(end = 4.dp)
