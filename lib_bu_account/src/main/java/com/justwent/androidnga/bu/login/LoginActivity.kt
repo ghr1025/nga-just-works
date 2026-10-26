@@ -141,6 +141,15 @@ class LoginActivity : BaseComposeActivity() {
                         }
                     }
                     webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            super.onPageFinished(view, url)
+                            if (isMiuixStyle) {
+                                // NGA's login page paints its body grey around a narrower cream
+                                // column; use the cream behind it so the form fills the area.
+                                view?.evaluateJavascript(MIUIX_LOGIN_PAGE_JS, null)
+                            }
+                        }
+
 
                         override fun shouldOverrideUrlLoading(
                             view: WebView?,
@@ -174,3 +183,12 @@ class LoginActivity : BaseComposeActivity() {
     }
 
 }
+
+/** Replaces the login page's grey page background with its cream content colour. */
+private const val MIUIX_LOGIN_PAGE_JS = """
+(function () {
+  var cream = '#FFF6DF';
+  document.documentElement.style.background = cream;
+  document.body.style.background = cream;
+})();
+"""
