@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -122,6 +123,8 @@ fun <T : Any> MiuixPagingList(
     retryText: String,
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
+    /** Extra bottom space so the last item clears a floating action button. */
+    bottomClearance: Dp = 12.dp,
     itemContent: @Composable (T) -> Unit,
 ) {
     val refreshState = items.loadState.refresh
@@ -158,12 +161,17 @@ fun <T : Any> MiuixPagingList(
                 modifier = Modifier
                     .fillMaxSize()
                     .then(page.scrollModifier),
-                contentPadding = miuixListPadding(page.padding),
+                contentPadding = miuixListPadding(page.padding, extraBottom = bottomClearance),
             ) {
                 item(key = "miuix-top-gap") { Box(Modifier.padding(top = 12.dp)) }
                 items(count) { index ->
                     val item = items[index] ?: return@items
-                    MiuixListCardItem(index = index, count = count) {
+                    // One Miuix card per item, separated by spacing, like HyperOS list cards.
+                    Card(
+                        modifier = Modifier
+                            .padding(horizontal = MiuixCardHorizontalMargin)
+                            .padding(bottom = 10.dp),
+                    ) {
                         itemContent(item)
                     }
                 }

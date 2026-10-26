@@ -47,6 +47,8 @@ internal fun MiuixMessageList(
         items = items,
         errorText = stringResource(com.justwen.androidnga.ui.compose.R.string.error_load_failed),
         retryText = "重试",
+        // Clear the compose button of the Miuix page.
+        bottomClearance = 88.dp,
     ) { message ->
         MiuixMessageThreadRow(message, onOpen)
     }
@@ -112,6 +114,8 @@ internal fun MiuixMessageDetailList(
         items = items,
         errorText = stringResource(com.justwen.androidnga.ui.compose.R.string.error_load_failed),
         retryText = "重试",
+        // Clear the compose button of the Miuix page.
+        bottomClearance = 88.dp,
     ) { message ->
         MiuixMessageArticle(message, onOpenLink)
     }
@@ -125,11 +129,13 @@ private fun MiuixMessageArticle(message: MessageArticlePageInfo, onOpenLink: (St
         // android.util.Pair: first is the text, second marks a link.
         message.contentSections.forEach { section ->
             if (section.second != true) {
-                append(section.first)
+                append(readableMessageText(section.first))
             } else {
+                // The link section may still hold its BBCode label, e.g. "=/read.php?..][b]title[/b]";
+                // show the readable label and keep the original section as the link target.
                 pushStringAnnotation(tag = "URL", annotation = section.first)
                 withStyle(SpanStyle(color = colors.primary, fontWeight = FontWeight.Medium)) {
-                    append(section.first)
+                    append(readableLinkLabel(section.first))
                 }
                 pop()
             }
@@ -172,4 +178,21 @@ private fun MiuixMessageArticle(message: MessageArticlePageInfo, onOpenLink: (St
             )
         }
     }
+}
+
+private val BbCodeTag = Regex("""\[/?(?:b|i|u|del|color|size|font|align|url)(?:=[^\]]*)?]""")
+private val BlankLineRun = Regex("""\n[ \t]*(?:\n[ \t]*){2,}""")
+
+/**
+ * Display-only cleanup for the Miuix message card: system messages keep NGA BBCode (for
+ * example `[url=/read.php?...][b]...[/b]`) that MessageConvertFactory leaves in plain sections,
+ * and their bodies carry runs of empty lines. Links stay in their own sections.
+ */
+internal fun readableMessageText(text: String): String =
+    text.replace(BbCodeTag, "").replace(BlankLineRun, "\n\n")
+
+/** Text of a parsed link section: an `=target]label` remainder shows only its label. */
+internal fun readableLinkLabel(section: String): String {
+    val label = if (section.startsWith("=") && section.contains("]")) section.substringAfter("]") else section
+    return readableMessageText(label).ifBlank { section }
 }
