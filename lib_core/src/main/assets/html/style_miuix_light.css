@@ -1,0 +1,18 @@
+/*
+ * Miuix appearance, light. Same as style_light.css except quotes: no border, corners matching
+ * the 16dp floor cards (1 CSS px = 1 dp in the reader WebView), and a slightly deeper fill for
+ * nested quotes since the border was their only separation.
+ */
+body {
+    color: #000000;
+}
+
+div.quote {
+    border: none;
+    border-radius: 16px;
+    background-color: #F0F0F0;
+}
+
+div.quote div.quote {
+    background-color: #E3E3E3;
+}

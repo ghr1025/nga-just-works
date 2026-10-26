@@ -127,6 +127,7 @@ public class ArticleConvertFactory {
         htmlData.setAttachmentsPrefix(attachmentsPrefix);
         htmlData.setAlertInfo(row.getAlterinfo());
         htmlData.setDarkMode(ThemeManager.getInstance().isNightMode());
+        htmlData.setMiuixStyle(ThemeManager.getInstance().isMiuixStyle());
         htmlData.setInBackList(row.get_isInBlackList());
         htmlData.setTextSize(PhoneConfiguration.getInstance().getTopicContentSize());
         htmlData.setEmotionSize(PhoneConfiguration.getInstance().getEmoticonSize());
