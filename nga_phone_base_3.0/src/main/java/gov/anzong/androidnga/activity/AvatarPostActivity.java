@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.HashSet;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
+
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.util.ToastUtils;
 import sp.phone.common.PhoneConfiguration;
@@ -141,9 +143,16 @@ public class AvatarPostActivity extends BaseActivity implements
 
         super.onCreate(savedInstanceState);
         v = this.getLayoutInflater().inflate(R.layout.activity_change_avatar, null);
-        v.setBackgroundColor(getResources().getColor(
-                ThemeManager.getInstance().getBackgroundColor()));
-        this.setContentView(v);
+        if (isMiuixPage()) {
+            // Miuix top app bar above the classic form (this screen uses the window ActionBar
+            // in the classic appearance).
+            v.setBackgroundColor(getResources().getColor(R.color.miuix_surface));
+            this.setContentView(MiuixViewShellKt.miuixViewShell(this, v, v, false, null));
+        } else {
+            v.setBackgroundColor(getResources().getColor(
+                    ThemeManager.getInstance().getBackgroundColor()));
+            this.setContentView(v);
+        }
 
         act = new AvatarPostAction();
         loading = false;
@@ -191,7 +200,15 @@ public class AvatarPostActivity extends BaseActivity implements
 
         });
 
-        getSupportActionBar().setTitle("更改头像");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("更改头像");
+        }
+        setTitle("更改头像");
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
     }
 
     @Override

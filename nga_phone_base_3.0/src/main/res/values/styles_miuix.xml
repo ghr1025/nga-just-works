@@ -11,6 +11,25 @@
         <item name="colorPrimaryDark">@color/miuix_surface</item>
         <item name="colorAccent">@color/miuix_primary</item>
         <item name="android:windowBackground">@color/miuix_surface</item>
+        <!-- Classic AlertDialogs and DialogFragments: HyperOS card colour and corners. -->
+        <item name="alertDialogTheme">@style/AppThemeDayNightMiuix.Dialog</item>
+        <item name="android:alertDialogTheme">@style/AppThemeDayNightMiuix.Dialog</item>
+        <item name="dialogTheme">@style/AppThemeDayNightMiuix.Dialog</item>
+        <item name="android:dialogTheme">@style/AppThemeDayNightMiuix.Dialog</item>
+    </style>
+
+    <style name="AppThemeDayNightMiuix.Dialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/miuix_primary</item>
+        <item name="colorPrimary">@color/miuix_primary</item>
+        <item name="android:windowBackground">@drawable/miuix_dialog_background</item>
+        <item name="buttonBarPositiveButtonStyle">@style/AppThemeDayNightMiuix.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/AppThemeDayNightMiuix.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/AppThemeDayNightMiuix.DialogButton</item>
+    </style>
+
+    <style name="AppThemeDayNightMiuix.DialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/miuix_primary</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <style name="AppThemeDayNightMiuix.NoActionBar">

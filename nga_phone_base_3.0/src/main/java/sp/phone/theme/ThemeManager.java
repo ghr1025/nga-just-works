@@ -165,7 +165,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     @StyleRes
     public int getTheme(boolean toolbarEnabled) {
         if (mMiuixStyle) {
-            return toolbarEnabled ? R.style.AppThemeDayNightMiuix_NoActionBar : R.style.AppThemeDayNightMiuix;
+            // Miuix pages draw their own top app bar; a window ActionBar would add a second one.
+            return R.style.AppThemeDayNightMiuix_NoActionBar;
         }
         int index = isNightMode() ? 0 : mThemeIndex;
         return toolbarEnabled ? mAppThemes[index] : mAppThemesActionBar[index];
