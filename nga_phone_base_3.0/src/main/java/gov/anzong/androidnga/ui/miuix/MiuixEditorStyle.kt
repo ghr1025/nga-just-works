@@ -158,6 +158,8 @@ object MiuixEditorStyle {
         val density = root.resources.displayMetrics.density
         val surface = ContextCompat.getColor(context, R.color.miuix_surface)
         val field = ContextCompat.getColor(context, R.color.miuix_surface_container)
+        // Miuix grey for secondary buttons (secondaryVariant), as the dialog cancel button.
+        val secondary = ContextCompat.getColor(context, R.color.miuix_dialog_button_secondary)
         val onSurface = ContextCompat.getColor(context, R.color.miuix_on_surface)
         val summary = ContextCompat.getColor(context, R.color.miuix_on_surface_summary)
         val primary = ContextCompat.getColor(context, R.color.miuix_primary)
@@ -179,7 +181,7 @@ object MiuixEditorStyle {
                 }
                 is android.widget.Button -> {
                     // First button is the secondary action (select picture), the next the primary.
-                    val bg = if (firstButton) field else primary
+                    val bg = if (firstButton) secondary else primary
                     view.background = GradientDrawable().apply {
                         cornerRadius = 16 * density
                         setColor(bg)

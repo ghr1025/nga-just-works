@@ -49,7 +49,12 @@ object MiuixProfileStyle {
                         it.rightMargin = (12 * density).toInt()
                     }
                 }
-                view is TextView -> styleText(view, primary, summary, onSurface)
+                view is TextView -> {
+                    styleText(view, primary, summary, onSurface)
+                    if (view.id == R.id.tv_user_email) {
+                        (view.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart = 0
+                    }
+                }
             }
         }
         // The modify-signature action reads as a Miuix link.
@@ -73,17 +78,17 @@ object MiuixProfileStyle {
                 view.textSize = 14f
             }
             view.id == R.id.tv_admin_sub_title || view.id == R.id.tv_fame_sub_title -> {
-                // Section descriptions read as Miuix summaries.
+                // Section descriptions read as Miuix summaries, a step below body text.
                 view.setTextColor(summary)
-                view.textSize = 13f
+                view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12f)
             }
             view.id == R.id.tv_user_state -> Unit // keeps the active / muted / nuked colour
             view.id == R.id.btn_modify_sign -> Unit
             view.currentTextColor == Color.WHITE -> view.setTextColor(onSurface)
             isLabel(view) -> {
                 view.setTextColor(onSurface)
-                // Labels mix "属地： " and "邮箱 : "; use one form.
-                view.text = text.replace("：", " : ").replace(Regex("\\s*:\\s*$"), " : ")
+                // Labels mix "属地：" and "邮箱 : "; use one form.
+                view.text = text.trimEnd().removeSuffix("：").removeSuffix(":").trimEnd() + " : "
             }
             else -> view.setTextColor(summary)
         }
