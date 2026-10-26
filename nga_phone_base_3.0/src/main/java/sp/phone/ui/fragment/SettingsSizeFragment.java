@@ -10,14 +10,22 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment;
 import com.zhouyou.view.seekbar.SignSeekBar;
+
+import java.util.Arrays;
+import java.util.List;
 
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.base.widget.SeekBarEx;
 import sp.phone.common.Constants;
+import gov.anzong.androidnga.ui.miuix.MiuixSizeItem;
+import gov.anzong.androidnga.ui.miuix.MiuixSizeSettingsPageKt;
+import kotlin.Unit;
 import sp.phone.common.PhoneConfiguration;
 
-public class SettingsSizeFragment extends BaseFragment implements  SignSeekBar.OnProgressChangedListener {
+public class SettingsSizeFragment extends BaseFragment implements  SignSeekBar.OnProgressChangedListener, MiuixFragment {
 
     private PhoneConfiguration mConfiguration = PhoneConfiguration.getInstance();
 
@@ -27,6 +35,9 @@ public class SettingsSizeFragment extends BaseFragment implements  SignSeekBar.O
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_settings_size, container, false);
         initView(rootView);
+        if (MiuixChromeKt.isMiuixHost(getActivity())) {
+            return createMiuixView();
+        }
         return rootView;
     }
 
@@ -34,6 +45,45 @@ public class SettingsSizeFragment extends BaseFragment implements  SignSeekBar.O
     public void onResume() {
         getActivity().setTitle(R.string.setting_title_size);
         super.onResume();
+    }
+
+    /**
+     * Miuix sliders for the same four values; each commits through the PhoneConfiguration
+     * setter the classic SeekBar uses on action up. The classic preview WebView is reused.
+     */
+    private View createMiuixView() {
+        List<MiuixSizeItem> items = Arrays.asList(
+                new MiuixSizeItem(getString(R.string.text_size), Constants.TOPIC_TITLE_SIZE_MIN,
+                        Constants.TOPIC_TITLE_SIZE_MAX, (int) mConfiguration.getTopicTitleSize(),
+                        value -> Unit.INSTANCE,
+                        value -> {
+                            mConfiguration.setTopicTitleSize(value);
+                            return Unit.INSTANCE;
+                        }),
+                new MiuixSizeItem(getString(R.string.avatar_size), Constants.AVATAR_SIZE_MIN,
+                        Constants.AVATAR_SIZE_MAX, mConfiguration.getAvatarSize(),
+                        value -> Unit.INSTANCE,
+                        value -> {
+                            mConfiguration.setAvatarSize(value);
+                            return Unit.INSTANCE;
+                        }),
+                new MiuixSizeItem(getString(R.string.emotion_size), Constants.EMOTICON_SIZE_MIN,
+                        Constants.EMOTICON_SIZE_MAX, mConfiguration.getEmoticonSize(),
+                        value -> Unit.INSTANCE,
+                        value -> {
+                            mConfiguration.setEmoticonSize(value);
+                            return Unit.INSTANCE;
+                        }),
+                new MiuixSizeItem("帖子内字体大小", 1, 100, mConfiguration.getWebViewTextZoom(),
+                        value -> {
+                            MiuixSizeSettingsPageKt.applyPreviewZoom(mWebView, value);
+                            return Unit.INSTANCE;
+                        },
+                        value -> {
+                            mConfiguration.setWebViewTextZoom(value);
+                            return Unit.INSTANCE;
+                        }));
+        return MiuixSizeSettingsPageKt.miuixSizeSettingsView(requireActivity(), items, mWebView);
     }
 
     private void initView(View rootView) {
