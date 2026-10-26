@@ -2,6 +2,8 @@
 <!-- MiuixIcons.Regular.Delete from compose-miuix-ui miuix-icons 0.8.8 (Apache-2.0),
      converted to a VectorDrawable for View-based Miuix screens. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="VectorPath"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="1278"
