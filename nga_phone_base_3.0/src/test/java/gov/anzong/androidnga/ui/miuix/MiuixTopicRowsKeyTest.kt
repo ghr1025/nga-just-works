@@ -30,4 +30,12 @@ class MiuixTopicRowsKeyTest {
         val items = listOf(info(7), info(8))
         assertEquals(items, MiuixTopicRows.keyed(items).map { it.first })
     }
+
+    @Test
+    fun replyRowsDropQuotedPostAndBbCode() {
+        val raw = "[quote][pid=883163400,47598627,15]Reply[/pid] [b]Post by [uid=1]x[/uid] (2026-10-01):[/b]引用内容[/quote]带新，留ID"
+        assertEquals("带新，留ID", MiuixTopicRows.readableReply(raw))
+        assertEquals("50就够了", MiuixTopicRows.readableReply("[b]50就够了[/b]"))
+        assertEquals("还真是，不会真是", MiuixTopicRows.readableReply("<br/>还真是，不会真是"))
+    }
 }

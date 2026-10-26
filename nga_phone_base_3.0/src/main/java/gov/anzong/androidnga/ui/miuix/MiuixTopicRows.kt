@@ -30,7 +30,7 @@ object MiuixTopicRows {
         MiuixTopicRow(
             source = info,
             key = key,
-            title = reply.content.orEmpty(),
+            title = readableReply(reply.content.orEmpty()),
             author = null,
             lastReply = null,
             replies = null,
@@ -59,5 +59,22 @@ object MiuixTopicRows {
             val n = seen.merge(base, 1, Int::plus) ?: 1
             info to if (n == 1) base else "$base#$n"
         }
+    }
+
+    private val QuoteBlock = Regex("""\[quote].*?\[/quote]""", RegexOption.DOT_MATCHES_ALL)
+    private val BbCodeTag = Regex("""\[/?(?:b|i|u|del|color|size|font|align|url|pid|tid|uid|img|quote|collapse)(?:=[^\]]*)?]""")
+    private val Whitespace = Regex("""\s+""")
+    private val LineBreakTag = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Display text of a reply in Miuix rows: NGA BBCode (quotes of the replied post, pid/uid
+     * tags, bold) is dropped so the row shows what the user wrote. The classic adapter keeps
+     * the raw text.
+     */
+    @JvmStatic
+    internal fun readableReply(content: String): String {
+        val text = content.replace(LineBreakTag, " ").replace(QuoteBlock, " ").replace(BbCodeTag, "")
+            .replace(Whitespace, " ").trim()
+        return text.ifEmpty { content.replace(BbCodeTag, "").trim() }
     }
 }

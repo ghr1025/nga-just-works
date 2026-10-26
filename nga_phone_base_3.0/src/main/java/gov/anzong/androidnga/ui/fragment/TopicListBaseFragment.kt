@@ -9,7 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import gov.anzong.androidnga.R
 import gov.anzong.androidnga.base.util.ToastUtils
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment
+import com.justwen.androidnga.ui.compose.miuix.isMiuixHost
 import gov.anzong.androidnga.base.widget.DividerItemDecorationEx
+import gov.anzong.androidnga.ui.miuix.MiuixTopicListBridge
+import gov.anzong.androidnga.ui.miuix.MiuixTopicListHost
 import sp.phone.mvp.model.entity.ThreadPageInfo
 import sp.phone.mvp.presenter.TopicListPresenter
 import sp.phone.param.ParamKey
@@ -22,7 +26,8 @@ import sp.phone.view.RecyclerViewEx
 /**
  * 主题列表Base实现类，提供了列表解析、下拉刷新、上拉加载更多功能
  */
-open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_base), View.OnClickListener {
+open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_base), View.OnClickListener,
+    MiuixFragment, MiuixTopicListHost {
 
     protected lateinit var mRefreshLayout: SwipeRefreshLayout;
 
@@ -33,6 +38,13 @@ open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_bas
     protected lateinit var mPresenter: TopicListPresenter
 
     protected lateinit var mAdapter: BaseAppendableAdapter<ThreadPageInfo, *>
+
+    /** Non null while the Miuix appearance renders this list; mirrors [mAdapter]. */
+    protected var mMiuix: MiuixTopicListBridge? = null
+
+    /** Whether rows are reply search results (shown with the reply text). */
+    protected open val isReplyList: Boolean
+        get() = (mRequestParam?.searchPost ?: 0) > 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +57,7 @@ open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_bas
     private fun initState() {
         mPresenter.isRefreshing.observe(this, Observer {
             mRefreshLayout.isRefreshing = it
+            mMiuix?.setRefreshing(it)
         })
         mPresenter.errorMsg.observe(this, Observer {
             ToastUtils.error(it)
@@ -66,9 +79,22 @@ open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_bas
     private fun setData(data: MutableList<ThreadPageInfo>?, append: Boolean) {
         if (!append) {
             mAdapter.clear()
+            mMiuix?.scrollToTop()
         }
         mAdapter.setData(data)
         mRefreshLayout.isRefreshing = false
+        mMiuix?.setRefreshing(false)
+    }
+
+    /**
+     * Wraps the classic view in the Miuix topic list in the Miuix appearance. The classic views
+     * stay (hidden) and keep the adapter, paging and observers.
+     */
+    protected fun wrapMiuix(classicView: View): View {
+        if (!isMiuixHost(activity)) {
+            return classicView
+        }
+        return MiuixTopicListBridge(this, this, isReplyList).also { mMiuix = it }.wrap(classicView)
     }
 
     protected open fun onCreatePresenter(): TopicListPresenter {
@@ -88,6 +114,7 @@ open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_bas
         mListView = view.findViewById(R.id.list)
         mListView.layoutManager = LinearLayoutManager(context)
         mListView.adapter = mAdapter
+        mMiuix?.attach(mAdapter)
         val padding = resources.getDimension(R.dimen.topic_list_item_padding)
         mListView.addItemDecoration(DividerItemDecorationEx(view.context, padding.toInt(), DividerItemDecoration.VERTICAL))
         mListView.setOnNextPageLoadListener {
@@ -114,6 +141,34 @@ open class TopicListBaseFragment : BaseFragment(R.layout.fragment_topic_list_bas
     override fun onClick(v: View?) {
         TopicListFragment.handleClickEvent(context, v?.tag as ThreadPageInfo?, mRequestParam)
     }
+
+    // ---- Miuix page: the same actions the classic views trigger ----
+
+    override fun isMiuixRefreshEnabled(): Boolean = mRefreshLayout.isEnabled
+
+    override fun onMiuixRefresh() {
+        if (!mRefreshLayout.isRefreshing) {
+            mPresenter.loadPage(1, mRequestParam)
+        }
+    }
+
+    override fun onMiuixLoadNextPage() {
+        if (!mRefreshLayout.isRefreshing && mAdapter.hasNextPage()) {
+            mPresenter.loadNextPage(mAdapter.nextPage, mRequestParam)
+        }
+    }
+
+    override fun onMiuixItemClick(info: ThreadPageInfo) {
+        TopicListFragment.handleClickEvent(context, info, mRequestParam)
+    }
+
+    override fun miuixDeleteConfirmText(info: ThreadPageInfo): String? = null
+
+    override fun onMiuixDelete(info: ThreadPageInfo) = Unit
+
+    override fun onMiuixTitleClick() = onTitleClick()
+
+    override fun miuixFabAction(): Runnable? = null
 
 
 }
