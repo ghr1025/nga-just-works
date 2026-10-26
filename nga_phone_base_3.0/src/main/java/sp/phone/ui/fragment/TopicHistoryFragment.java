@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson2.JSON;
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment;
 
 import java.util.List;
 
@@ -23,6 +25,8 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.widget.DividerItemDecorationEx;
 import gov.anzong.androidnga.common.ui.dialog.ConfirmDialog;
+import gov.anzong.androidnga.ui.miuix.MiuixTopicListBridge;
+import gov.anzong.androidnga.ui.miuix.MiuixTopicListHost;
 import gov.anzong.androidnga.ui.widget.ToolbarUtils;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.TopicHistoryManager;
@@ -37,13 +41,17 @@ import sp.phone.view.RecyclerViewEx;
  * Created by Justwen on 2018/1/17.
  */
 
-public class TopicHistoryFragment extends BaseFragment implements View.OnClickListener {
+public class TopicHistoryFragment extends BaseFragment implements View.OnClickListener, MiuixFragment,
+        MiuixTopicListHost {
 
     private TopicListAdapter mTopicListAdapter;
 
     private RecyclerViewEx mListView;
 
     private TopicHistoryManager mTopicHistoryManager;
+
+    /** Non null while the Miuix appearance renders this list. */
+    private MiuixTopicListBridge mMiuix;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +63,12 @@ public class TopicHistoryFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings_user, container, false);
+        View classic = inflater.inflate(R.layout.fragment_settings_user, container, false);
+        if (!MiuixChromeKt.isMiuixHost(getActivity())) {
+            return classic;
+        }
+        mMiuix = new MiuixTopicListBridge(this, this, false);
+        return mMiuix.wrap(classic);
     }
 
     @Override
@@ -90,6 +103,11 @@ public class TopicHistoryFragment extends BaseFragment implements View.OnClickLi
         //将recycleView和ItemTouchHelper绑定
         touchHelper.attachToRecyclerView(mListView);
         setData(mTopicHistoryManager.getTopicHistoryList());
+        if (mMiuix != null) {
+            mTopicListAdapter.setNextPageEnabled(false);
+            mMiuix.attach(mTopicListAdapter);
+            mMiuix.markLoaded();
+        }
 
         // 浏览历史是本地列表，没有东西可刷新，点标题只回顶部。工具栏属于宿主 Activity，
         // 这个 Fragment 的布局里没有。
@@ -101,6 +119,62 @@ public class TopicHistoryFragment extends BaseFragment implements View.OnClickLi
         TopicListInfo listInfo = new TopicListInfo();
         listInfo.setThreadPageList(topicLIst);
         mTopicListAdapter.setData(listInfo.getThreadPageList());
+    }
+
+    // ---- Miuix page: same actions as the classic list (swipe to delete becomes long press) ----
+
+    @Override
+    public boolean isMiuixRefreshEnabled() {
+        return false;
+    }
+
+    @Override
+    public void onMiuixRefresh() {
+    }
+
+    @Override
+    public void onMiuixLoadNextPage() {
+    }
+
+    @Override
+    public void onMiuixItemClick(ThreadPageInfo info) {
+        View tagged = new View(requireContext());
+        tagged.setTag(info);
+        onClick(tagged);
+    }
+
+    @Override
+    public String miuixDeleteConfirmText(ThreadPageInfo info) {
+        return "确认删除这条浏览历史吗";
+    }
+
+    @Override
+    public void onMiuixDelete(ThreadPageInfo info) {
+        // Same as the classic swipe handler: the adapter position indexes both lists.
+        int position = -1;
+        for (int i = 0; i < mTopicListAdapter.getItemCount(); i++) {
+            if (mTopicListAdapter.getItem(i) == info) {
+                position = i;
+                break;
+            }
+        }
+        if (position >= 0) {
+            mTopicHistoryManager.removeTopicHistory(position);
+            mTopicListAdapter.removeItem(position);
+        }
+    }
+
+    @Override
+    public void onMiuixTitleClick() {
+        mListView.scrollToPosition(0);
+        if (mMiuix != null) {
+            mMiuix.scrollToTop();
+        }
+    }
+
+    @Override
+    public Runnable miuixFabAction() {
+        return null;
     }
 
     @Override

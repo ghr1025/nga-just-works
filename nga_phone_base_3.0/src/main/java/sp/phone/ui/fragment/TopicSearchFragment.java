@@ -26,6 +26,7 @@ import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.widget.DividerItemDecorationEx;
 import gov.anzong.androidnga.ui.miuix.MiuixTopicListBridge;
+import gov.anzong.androidnga.ui.miuix.MiuixTopicListHost;
 import gov.anzong.androidnga.ui.widget.ToolbarUtils;
 import sp.phone.common.ApiConstants;
 import sp.phone.common.PhoneConfiguration;
@@ -45,7 +46,8 @@ import sp.phone.util.StringUtils;
 import sp.phone.view.LoadingLayout;
 import sp.phone.view.RecyclerViewEx;
 
-public class TopicSearchFragment extends BaseFragment implements View.OnClickListener, MiuixFragment {
+public class TopicSearchFragment extends BaseFragment implements View.OnClickListener, MiuixFragment,
+        MiuixTopicListHost {
 
     private static final String TAG = TopicSearchFragment.class.getSimpleName();
 
@@ -136,7 +138,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
         if (!MiuixChromeKt.isMiuixHost(getActivity())) {
             return classicView;
         }
-        mMiuix = new MiuixTopicListBridge(this, mRequestParam.searchPost > 0);
+        mMiuix = new MiuixTopicListBridge(this, this, mRequestParam.searchPost > 0);
         return mMiuix.wrap(classicView);
     }
 
@@ -232,6 +234,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     }
 
     /** Pull-to-refresh of the Miuix page; mirrors the classic SwipeRefreshLayout listener. */
+    @Override
     public void onMiuixRefresh() {
         if (mSwipeRefreshLayout.isEnabled() && !isRefreshing()) {
             mPresenter.loadPage(1, mRequestParam);
@@ -241,6 +244,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     }
 
     /** End of the Miuix list reached; mirrors RecyclerViewEx's next page trigger. */
+    @Override
     public void onMiuixLoadNextPage() {
         if (!isRefreshing() && mAdapter.hasNextPage()) {
             mPresenter.loadNextPage(mAdapter.getNextPage(), mRequestParam);
@@ -248,16 +252,19 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     }
 
     /** Whether pull-to-refresh applies; caches disable it after loading. */
+    @Override
     public boolean isMiuixRefreshEnabled() {
         return mSwipeRefreshLayout == null || mSwipeRefreshLayout.isEnabled();
     }
 
     /** Title tap on the Miuix top app bar; same action as the classic toolbar title. */
+    @Override
     public void onMiuixTitleClick() {
         onTitleClick();
     }
 
     /** Row tap on the Miuix page; the classic adapter passes the item through the view tag. */
+    @Override
     public void onMiuixItemClick(ThreadPageInfo info) {
         View tagged = new View(requireContext());
         tagged.setTag(info);
@@ -268,15 +275,18 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
      * Long-press delete confirmation for the Miuix page, or null when rows cannot be deleted.
      * Subclasses that delete on long press return their confirmation text.
      */
+    @Override
     public String miuixDeleteConfirmText(ThreadPageInfo info) {
         return null;
     }
 
     /** Confirmed long-press delete on the Miuix page. */
+    @Override
     public void onMiuixDelete(ThreadPageInfo info) {
     }
 
     /** Primary action of the Miuix page (the board list's post button), or null. */
+    @Override
     public Runnable miuixFabAction() {
         return null;
     }

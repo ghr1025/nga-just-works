@@ -1,20 +1,21 @@
 package gov.anzong.androidnga.ui.miuix
 
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import sp.phone.mvp.model.entity.ThreadPageInfo
 import sp.phone.ui.adapter.BaseAppendableAdapter
-import sp.phone.ui.fragment.TopicSearchFragment
 
 /**
- * Connects a classic [TopicSearchFragment] to its Miuix page.
+ * Connects a classic topic-list fragment ([host]) to its Miuix page.
  *
  * The fragment's adapter stays the single owner of the list data (paging, appends, removals,
  * de-duplication); this bridge observes it and republishes a snapshot to the Miuix page, and
  * forwards Miuix gestures to the fragment methods the classic views call.
  */
 class MiuixTopicListBridge(
-    private val fragment: TopicSearchFragment,
+    private val fragment: Fragment,
+    private val host: MiuixTopicListHost,
     private val replyResults: Boolean,
 ) {
     private val state = MiuixTopicListState().apply {
@@ -37,13 +38,13 @@ class MiuixTopicListBridge(
         activity = fragment.requireActivity(),
         state = state,
         callbacks = MiuixTopicListCallbacks(
-            onRefresh = { if (fragment.isMiuixRefreshEnabled) fragment.onMiuixRefresh() },
-            onLoadNextPage = fragment::onMiuixLoadNextPage,
-            onClick = { fragment.onMiuixItemClick(MiuixTopicRows.info(it)) },
-            deleteConfirmText = { fragment.miuixDeleteConfirmText(MiuixTopicRows.info(it)) },
-            onDelete = { fragment.onMiuixDelete(MiuixTopicRows.info(it)) },
-            onTitleClick = fragment::onMiuixTitleClick,
-            fab = fragment.miuixFabAction()?.let { action -> { action.run() } },
+            onRefresh = { if (host.isMiuixRefreshEnabled()) host.onMiuixRefresh() else setRefreshing(false) },
+            onLoadNextPage = host::onMiuixLoadNextPage,
+            onClick = { host.onMiuixItemClick(MiuixTopicRows.info(it)) },
+            deleteConfirmText = { host.miuixDeleteConfirmText(MiuixTopicRows.info(it)) },
+            onDelete = { host.onMiuixDelete(MiuixTopicRows.info(it)) },
+            onTitleClick = host::onMiuixTitleClick,
+            fab = host.miuixFabAction()?.let { action -> { action.run() } },
         ),
     )
 
@@ -63,6 +64,13 @@ class MiuixTopicListBridge(
     }
 
     fun scrollToTop() = state.requestScrollToTop()
+
+    /** For local lists that are complete on attach (no network load to wait for). */
+    fun markLoaded() {
+        state.initialLoading = false
+        state.refreshing = false
+        publish()
+    }
 
     private fun publish() {
         val adapter = adapter ?: return
