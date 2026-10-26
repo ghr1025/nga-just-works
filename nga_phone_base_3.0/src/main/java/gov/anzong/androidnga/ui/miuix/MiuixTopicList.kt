@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -50,7 +51,7 @@ import com.justwen.androidnga.ui.compose.miuix.MiuixAddButton
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner
 import com.justwen.androidnga.ui.compose.miuix.MiuixDialogButtons
 import com.justwen.androidnga.ui.compose.miuix.MiuixHostMenuActions
-import com.justwen.androidnga.ui.compose.miuix.MiuixListCardItem
+import com.justwen.androidnga.ui.compose.miuix.MiuixCardHorizontalMargin
 import com.justwen.androidnga.ui.compose.miuix.MiuixLoading
 import com.justwen.androidnga.ui.compose.miuix.MiuixMessage
 import com.justwen.androidnga.ui.compose.miuix.MiuixNavIcon
@@ -64,6 +65,7 @@ import com.justwen.androidnga.ui.compose.miuix.rememberHostOptionsMenu
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.InfiniteProgressIndicator
 import top.yukonga.miuix.kmp.basic.Text
@@ -269,8 +271,13 @@ private fun TopicLazyList(
         contentPadding = miuixListPadding(page.padding, extraBottom = if (callbacks.fab != null) 96.dp else 12.dp),
     ) {
         item(key = "top-gap") { Box(Modifier.padding(top = 12.dp)) }
-        itemsIndexed(rows, key = { _, row -> row.key }) { index, row ->
-            MiuixListCardItem(index = index, count = rows.size) {
+        itemsIndexed(rows, key = { _, row -> row.key }) { _, row ->
+            // One card per topic, like HyperOS list cards; cards are separated by spacing.
+            Card(
+                modifier = Modifier
+                    .padding(horizontal = MiuixCardHorizontalMargin)
+                    .padding(bottom = 10.dp),
+            ) {
                 TopicRowContent(
                     row = row,
                     titleSizeSp = state.titleSizeSp,
@@ -312,7 +319,7 @@ private fun TopicRowContent(
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Text(
-            text = row.title.toAnnotatedString(),
+            text = row.title.toAnnotatedString(MiuixTitleColors(colors.onSurfaceVariantSummary, colors.primary)),
             style = MiuixTheme.textStyles.body1.copy(fontSize = titleSizeSp.sp),
             color = colors.onSurfaceContainer,
             maxLines = 3,
@@ -333,19 +340,29 @@ private fun TopicRowContent(
                 .fillMaxWidth()
                 .padding(top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            // Author and last replier share the start; the reply count is pinned to the end so
+            // counts line up across rows regardless of name lengths.
+            val people = listOfNotNull(row.author, row.lastReply?.let { "· $it" }).joinToString(" ")
             if (row.author != null) {
                 Icon(NgaMiuixIcons.Person, contentDescription = null, tint = summaryColor, modifier = Modifier.size(15.dp))
-                MetaText(row.author, Modifier.weight(1f, fill = false))
             }
-            if (row.lastReply != null) {
-                MetaText("· ${row.lastReply}", Modifier.weight(1f, fill = false))
-            }
-            Box(Modifier.weight(1f))
+            MetaText(
+                text = people,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp, end = 12.dp),
+            )
             if (row.replies != null) {
-                Icon(NgaMiuixIcons.Reply, contentDescription = null, tint = summaryColor, modifier = Modifier.size(15.dp))
-                MetaText(row.replies)
+                // Fixed-width end column: icon and count line up at the right edge in every row.
+                Row(
+                    modifier = Modifier.widthIn(min = 56.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(NgaMiuixIcons.Reply, contentDescription = null, tint = summaryColor, modifier = Modifier.size(15.dp))
+                    MetaText(row.replies, Modifier.padding(start = 4.dp))
+                }
             }
         }
     }
@@ -363,8 +380,19 @@ private fun MetaText(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Miuix replacements for the classic marker colours of TopicTitleHelper: the board suffix
+ * (text_color_disabled, a beige meant for the cream classic background) and the attachment
+ * marker (title_orange) become Miuix summary and primary colours. Author-chosen title colours
+ * (red, blue, green, silver) keep their meaning and stay as they are.
+ */
+private class MiuixTitleColors(val subtle: Color, val accent: Color)
+
+private val ClassicSubtleColors = setOf(0xFFC4BEAE.toInt(), 0xFF6F6F6F.toInt())
+private val ClassicAccentColors = setOf(0xFFA06700.toInt())
+
 /** Converts the classic Spanned title into Compose styles, keeping the NGA title colours. */
-private fun CharSequence.toAnnotatedString(): AnnotatedString {
+private fun CharSequence.toAnnotatedString(miuix: MiuixTitleColors): AnnotatedString {
     val spanned = this as? Spanned ?: return AnnotatedString(toString())
     return buildAnnotatedString {
         append(spanned.toString())
@@ -373,7 +401,13 @@ private fun CharSequence.toAnnotatedString(): AnnotatedString {
             val end = spanned.getSpanEnd(span)
             if (start < 0 || end <= start) return@forEach
             val style = when (span) {
-                is ForegroundColorSpan -> SpanStyle(color = Color(span.foregroundColor))
+                is ForegroundColorSpan -> SpanStyle(
+                    color = when (span.foregroundColor) {
+                        in ClassicSubtleColors -> miuix.subtle
+                        in ClassicAccentColors -> miuix.accent
+                        else -> Color(span.foregroundColor)
+                    },
+                )
                 is StyleSpan -> when (span.style) {
                     Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
                     Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
