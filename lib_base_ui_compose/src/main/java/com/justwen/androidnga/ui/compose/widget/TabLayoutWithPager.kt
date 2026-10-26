@@ -366,50 +366,56 @@ fun TabLayoutWithPager(
                     Modifier
                 }
 
-                Tab(
-                    selected = logicalSelectedIndex == index,
-                    selectedContentColor = miuixTabs?.selectedContent ?: LocalContentColor.current,
-                    unselectedContentColor = miuixTabs?.unselectedContent
-                        ?: LocalContentColor.current.copy(alpha = ContentAlpha.medium),
-                    onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(index)
+                val tabModifier = Modifier
+                    .onGloballyPositioned { tabBounds[stableKey] = it.boundsInRoot() }
+                    .zIndex(if (isDragging) 1f else 0f)
+                    .graphicsLayer {
+                        if (isDragging) {
+                            val baseLeft = tabBounds[stableKey]?.left ?: 0f
+                            translationX = draggedPointerX - baseLeft - draggedTouchOffsetX
+                            shadowElevation = 8.dp.toPx()
                         }
-                    },
-                    modifier = Modifier
-                        .onGloballyPositioned { tabBounds[stableKey] = it.boundsInRoot() }
-                        .zIndex(if (isDragging) 1f else 0f)
-                        .graphicsLayer {
-                            if (isDragging) {
-                                val baseLeft = tabBounds[stableKey]?.left ?: 0f
-                                translationX = draggedPointerX - baseLeft - draggedTouchOffsetX
-                                shadowElevation = 8.dp.toPx()
-                            }
-                        }
-                        .semantics { customActions = accessibilityActions }
-                        .then(reorderModifier),
-                    text = { Text(title, style = miuixTabs?.textStyle ?: LocalTextStyle.current) },
-                )
+                    }
+                    .semantics { customActions = accessibilityActions }
+                    .then(reorderModifier)
+                val onTabClick: () -> Unit = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                }
+                if (miuixTabs != null) {
+                    MiuixTab(
+                        title = title,
+                        selected = logicalSelectedIndex == index,
+                        dragging = isDragging,
+                        tabs = miuixTabs,
+                        onClick = onTabClick,
+                        modifier = tabModifier,
+                        index = index,
+                    )
+                } else {
+                    Tab(
+                        selected = logicalSelectedIndex == index,
+                        selectedContentColor = LocalContentColor.current,
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
+                        onClick = onTabClick,
+                        modifier = tabModifier,
+                        text = { Text(title, style = LocalTextStyle.current) },
+                    )
+                }
             }
         }
     }
 
     Column {
         if (miuixTabs != null) {
-            // Miuix has no tab row that accepts per-tab gesture modifiers, so the Material row
-            // keeps the reorder logic and takes Miuix colours and a capsule indicator.
-            ScrollableTabRow(
+            // Miuix TabRow takes only strings, so it cannot carry the per-tab reorder gestures,
+            // bounds tracking and accessibility actions above. This row reproduces its look (rounded
+            // track, sliding selected block, bold selected text) around the same tab items.
+            MiuixReorderableTabRow(
                 selectedTabIndex = rowSelectedIndex,
-                edgePadding = 12.dp,
-                backgroundColor = miuixTabs.background,
-                contentColor = miuixTabs.selectedContent,
+                tabs = miuixTabs,
                 modifier = Modifier.onGloballyPositioned { tabRowBounds = it.boundsInRoot() },
-                indicator = { tabPositions ->
-                    tabPositions.getOrNull(logicalSelectedIndex)?.let { selectedPosition ->
-                        MiuixTabIndicator(Modifier.tabIndicatorOffset(selectedPosition), miuixTabs.selectedContent)
-                    }
-                },
-                divider = {},
             ) {
                 tabRowItems()
             }
