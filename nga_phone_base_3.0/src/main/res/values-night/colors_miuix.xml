@@ -4,4 +4,5 @@
     <color name="miuix_primary">#FF277AF7</color>
     <color name="miuix_surface">#FF000000</color>
     <color name="miuix_surface_container">#FF242424</color>
+    <color name="miuix_on_surface_summary">#80FFFFFF</color>
 </resources>

@@ -1,9 +1,12 @@
 package gov.anzong.androidnga.ui.miuix
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -22,6 +25,35 @@ object MiuixReaderStyle {
     private const val CARD_RADIUS_DP = 16f
     private const val CARD_MARGIN_H_DP = 12f
     private const val CARD_MARGIN_V_DP = 6f
+
+    /**
+     * Miuix icons and colours for one floor's header and action row. Called once per view
+     * holder; view ids come from fragment_article_list_item.
+     */
+    @JvmStatic
+    fun styleFloorViews(item: View) {
+        val context = item.context
+        val summary = ContextCompat.getColor(context, R.color.miuix_on_surface_summary)
+        val tint = ColorStateList.valueOf(summary)
+        listOf(
+            R.id.iv_support to R.drawable.ic_miuix_like,
+            R.id.iv_oppose to R.drawable.ic_miuix_dislike,
+            R.id.iv_reply to R.drawable.ic_miuix_reply,
+            R.id.iv_more to R.drawable.ic_miuix_more,
+        ).forEach { (id, icon) ->
+            item.findViewById<ImageView>(id)?.apply {
+                setImageResource(icon)
+                imageTintList = tint
+            }
+        }
+        // Classic beige metadata (floor, time, posts/location) becomes the Miuix summary colour.
+        listOf(R.id.tv_floor, R.id.tv_post_time, R.id.tv_detail, R.id.tv_score).forEach { id ->
+            item.findViewById<TextView>(id)?.setTextColor(summary)
+        }
+        item.findViewById<TextView>(R.id.tv_nickName)?.setTextColor(
+            ContextCompat.getColor(context, R.color.miuix_primary),
+        )
+    }
 
     @JvmStatic
     fun styleFloorCard(item: View) {

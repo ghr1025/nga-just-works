@@ -43,6 +43,30 @@ import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.theme.LocalDismissState
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+/**
+ * Miuix replacements for classic icons, registered once by the app: options-menu entries are
+ * matched by item id, OptionMenuData actions by their classic drawable. Icons without a
+ * registered replacement keep the classic drawable, tinted with the Miuix content colour.
+ */
+object MiuixMenuIcons {
+    private val byItemId = HashMap<Int, Int>()
+    private val byClassicIcon = HashMap<Int, Int>()
+
+    @JvmStatic
+    fun registerMenuItem(itemId: Int, @DrawableRes miuixIcon: Int) {
+        byItemId[itemId] = miuixIcon
+    }
+
+    @JvmStatic
+    fun registerIcon(@DrawableRes classicIcon: Int, @DrawableRes miuixIcon: Int) {
+        byClassicIcon[classicIcon] = miuixIcon
+    }
+
+    internal fun forItem(itemId: Int): Int? = byItemId[itemId]
+
+    internal fun forIcon(classicIcon: Int?): Int? = classicIcon?.let { byClassicIcon[it] ?: it }
+}
+
 /** One visible options-menu entry of a legacy host, ready to render in a Miuix top bar. */
 class MiuixMenuEntry internal constructor(
     val item: MenuItem,
@@ -134,11 +158,12 @@ fun RowScope.MiuixHostMenuActions(
     maxActions: Int = 2,
     extraActions: List<MiuixAction> = emptyList(),
 ) {
-    val promoted = entries.filter { it.asAction && (it.icon != null || iconFor(it.item) != null) }
-        .take(maxActions)
+    val promoted = entries.filter {
+        it.asAction && (it.icon != null || iconFor(it.item) != null || MiuixMenuIcons.forItem(it.item.itemId) != null)
+    }.take(maxActions)
     val overflow = entries.filterNot { it in promoted }
     val actions = extraActions.map { it.toHostAction() } + promoted.map { entry ->
-        HostAction(entry.title, iconFor(entry.item), null, entry.icon, true, entry.enabled) {
+        HostAction(entry.title, iconFor(entry.item), MiuixMenuIcons.forItem(entry.item.itemId), entry.icon, true, entry.enabled) {
             activity?.performHostMenuItem(entry.item)
         }
     } + overflow.map { entry ->
@@ -155,7 +180,8 @@ fun RowScope.MiuixActions(actions: List<MiuixAction>) {
     MiuixActionRow(actions.map { it.toHostAction() })
 }
 
-private fun MiuixAction.toHostAction() = HostAction(title, icon, iconRes, null, alwaysShow, enabled, onClick)
+private fun MiuixAction.toHostAction() =
+    HostAction(title, icon, MiuixMenuIcons.forIcon(iconRes), null, alwaysShow, enabled, onClick)
 
 private class HostAction(
     val title: String,

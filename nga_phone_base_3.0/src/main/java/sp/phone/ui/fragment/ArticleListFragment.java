@@ -395,7 +395,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             mArticleAdapter.setMiuixStyle(true);
             MiuixReaderStyle.styleFloorList(mListView, mSwipeRefreshLayout, mLoadingView);
         }
-        if (PhoneConfiguration.getInstance().useSolidColorBackground()) {
+        if (PhoneConfiguration.getInstance().useSolidColorBackground() && !MiuixChromeKt.isMiuixHost(getActivity())) {
             mListView.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
         }
 

@@ -40,7 +40,7 @@ import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.icon.MiuixIcons
-import top.yukonga.miuix.kmp.icon.extended.Create
+import top.yukonga.miuix.kmp.icon.extended.Edit
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.miuixCapsuleShape
 
@@ -200,7 +200,7 @@ private fun ReplyButton(onClick: () -> Unit, onLongPressRepeat: (() -> Unit)?, r
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = MiuixIcons.Create,
+                imageVector = MiuixIcons.Edit,
                 contentDescription = null,
                 tint = MiuixTheme.colorScheme.onPrimary,
             )

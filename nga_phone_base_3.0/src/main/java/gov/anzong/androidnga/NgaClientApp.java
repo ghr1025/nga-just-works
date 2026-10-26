@@ -1,6 +1,7 @@
 package gov.anzong.androidnga;
 
 import android.app.Application;
+import com.justwen.androidnga.ui.compose.miuix.MiuixMenuIcons;
 import android.os.Process;
 import android.webkit.WebView;
 
@@ -33,6 +34,15 @@ public class NgaClientApp extends Application {
 
     private static boolean sNewVersion;
 
+    /** Miuix outline icons used instead of the classic Material ones in the Miuix appearance. */
+    private static void registerMiuixIcons() {
+        MiuixMenuIcons.registerMenuItem(R.id.menu_open_by_browser, R.drawable.ic_miuix_browser);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_search, R.drawable.ic_miuix_search);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_add_bookmark, R.drawable.ic_miuix_favorites);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_remove_bookmark, R.drawable.ic_miuix_favorites_fill);
+        MiuixMenuIcons.registerIcon(R.drawable.btn_ic_search, R.drawable.ic_miuix_search);
+    }
+
     @Override
     public void onCreate() {
         ContextUtils.setApplication(this);
@@ -43,6 +53,7 @@ public class NgaClientApp extends Application {
         AppDatabase.init(this);
         initCoreModule();
         initRouter();
+        registerMiuixIcons();
         checkIn();
         super.onCreate();
 

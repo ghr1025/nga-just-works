@@ -444,6 +444,9 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     @Override
     public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mLayoutInflater.inflate(R.layout.fragment_article_list_item, parent, false);
+        if (mMiuixStyle) {
+            MiuixReaderStyle.styleFloorViews(view);
+        }
         ArticleViewHolder viewHolder = new ArticleViewHolder(view);
         ViewGroup.LayoutParams lp = viewHolder.avatarIv.getLayoutParams();
         lp.width = lp.height = PhoneConfiguration.getInstance().getAvatarSize();
