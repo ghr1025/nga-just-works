@@ -17,7 +17,10 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.ui.miuix.MiuixEditorStyle;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.base.widget.ProgressBarEx;
 import sp.phone.mvp.contract.TopicPostContract;
@@ -66,6 +69,9 @@ public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> imple
         mTitleEditText = rootView.findViewById(R.id.reply_titile_edittext);
         mBodyEditText = rootView.findViewById(R.id.reply_body_edittext);
         mAnonyCheckBox = rootView.findViewById(R.id.anony);
+        if (MiuixChromeKt.isMiuixHost(getActivity())) {
+            MiuixEditorStyle.style(rootView);
+        }
         return rootView;
     }
 

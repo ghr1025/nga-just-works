@@ -40,6 +40,9 @@ public class NgaClientApp extends Application {
         MiuixMenuIcons.registerMenuItem(R.id.menu_search, R.drawable.ic_miuix_search);
         MiuixMenuIcons.registerMenuItem(R.id.menu_add_bookmark, R.drawable.ic_miuix_favorites);
         MiuixMenuIcons.registerMenuItem(R.id.menu_remove_bookmark, R.drawable.ic_miuix_favorites_fill);
+        MiuixMenuIcons.registerMenuItem(R.id.send, R.drawable.ic_miuix_send);
+        MiuixMenuIcons.registerMenuItem(R.id.delete_all, R.drawable.ic_miuix_delete);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_send_message, R.drawable.ic_miuix_email);
         MiuixMenuIcons.registerIcon(R.drawable.btn_ic_search, R.drawable.ic_miuix_search);
     }
 
