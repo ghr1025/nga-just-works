@@ -4,9 +4,10 @@ import android.app.Activity
 import android.os.Build
 
 /**
- * Miuix page transitions for Activities: opening slides the new page in from the right with a
- * fade while the page underneath shifts left; going back reverses it, left to right. Uses the
- * Miuix NavDisplay curve (damped spring, 500 ms).
+ * Miuix page transitions for Activities, matching Miuix NavDisplay: opening slides the new page in
+ * from the right while the page underneath shifts a quarter to the left; going back reverses it,
+ * left to right. Translation only, no fade (a fading window ghosts on HyperOS), with the NavDisplay
+ * curve (damped spring, 500 ms).
  *
  * overrideActivityTransition (API 34+) also drives the predictive back gesture, so the swipe
  * plays the same close animation as the gesture progresses.
