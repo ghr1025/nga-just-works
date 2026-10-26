@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
@@ -171,7 +172,9 @@ private fun ForumBoardGridItemView(
                 }
             }
     ) {
-        Spacer(modifier = Modifier.height(paddingValue))
+        // Miuix tiles are cards: give the icon and label room inside the card.
+        val tileInset = if (miuix) 10.dp else paddingValue
+        Spacer(modifier = Modifier.height(tileInset))
         val resId = getResId(child)
         if (resId > 0) {
             Image(
@@ -193,12 +196,14 @@ private fun ForumBoardGridItemView(
         }
         Text(
             modifier = Modifier
-                .padding(top = paddingValue, bottom = paddingValue),
+                .padding(top = paddingValue, bottom = paddingValue)
+                .then(if (miuix) Modifier.padding(horizontal = 8.dp) else Modifier),
             color = if (miuix) miuixBoardTextColor() else Color(context.resources.getColor(R.color.text_color, null)),
             text = child.name,
             maxLines = if (miuix) 1 else Int.MAX_VALUE,
+            overflow = if (miuix) TextOverflow.Ellipsis else TextOverflow.Clip,
         )
-        Spacer(modifier = Modifier.height(paddingValue))
+        Spacer(modifier = Modifier.height(tileInset))
     }
 }
 

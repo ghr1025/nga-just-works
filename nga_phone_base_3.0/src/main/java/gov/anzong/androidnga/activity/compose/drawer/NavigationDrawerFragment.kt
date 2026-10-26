@@ -55,6 +55,13 @@ import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
 import com.justwen.androidnga.ui.compose.miuix.isMiuixHost
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.AddCircle
+import top.yukonga.miuix.kmp.icon.extended.Contacts
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.icon.extended.Info
+import top.yukonga.miuix.kmp.icon.extended.Link
+import top.yukonga.miuix.kmp.icon.extended.Messages
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
 import com.justwen.androidnga.ui.compose.widget.ScaffoldApp
@@ -104,25 +111,25 @@ class NavigationDrawerFragment : BaseComposeFragment() {
             menu = getOptionMenuData(),
             forumBoardViewModel = forumBoardViewModel,
             entries = listOf(
-                MiuixDrawerEntry("登录账号", R.drawable.ic_login) { viewModel.startLoginPage(activity) },
-                MiuixDrawerEntry("添加版面ID", R.drawable.ic_action_add_to_queue) {
+                MiuixDrawerEntry("登录账号", MiuixIcons.Contacts) { viewModel.startLoginPage(activity) },
+                MiuixDrawerEntry("添加版面ID", MiuixIcons.AddCircle) {
                     viewModel.showAddBoardDialog(this@NavigationDrawerFragment)
                 },
-                MiuixDrawerEntry("由URL读取", R.drawable.ic_action_forward) {
+                MiuixDrawerEntry("由URL读取", MiuixIcons.Link) {
                     viewModel.forwardWithUrl(this@NavigationDrawerFragment)
                 },
-                MiuixDrawerEntry("清理收藏板块", R.drawable.ic_action_warning) {
+                MiuixDrawerEntry("清理收藏板块", MiuixIcons.Delete) {
                     viewModel.showClearFavoriteBoards(requireContext())
                 },
                 MiuixDrawerEntry(
                     "最近被喷",
-                    R.drawable.ic_action_gun,
+                    MiuixIcons.Messages,
                     badge = replyCount?.takeIf { it > 0 }?.toString(),
                 ) {
                     viewModel.startNotificationActivity(activity)
                 },
             ),
-            footer = MiuixDrawerEntry("关于", R.drawable.ic_action_about) {
+            footer = MiuixDrawerEntry("关于", MiuixIcons.Info) {
                 viewModel.startAboutNgaClient(activity)
             },
             onAccountClick = { user, count ->

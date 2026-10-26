@@ -22,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
@@ -57,7 +58,7 @@ import top.yukonga.miuix.kmp.theme.miuixShape
 /** Entry of the home drawer; the click goes to the existing NavigationDrawerViewModel action. */
 internal class MiuixDrawerEntry(
     val title: String,
-    val icon: Int,
+    val icon: ImageVector,
     val badge: String? = null,
     val onClick: () -> Unit,
 )
@@ -166,7 +167,7 @@ private fun DrawerRow(entry: MiuixDrawerEntry, badge: String?) {
         onClick = entry.onClick,
         startAction = {
             Icon(
-                painter = painterResource(entry.icon),
+                imageVector = entry.icon,
                 contentDescription = null,
                 tint = colors.onSurfaceContainer,
                 modifier = Modifier
