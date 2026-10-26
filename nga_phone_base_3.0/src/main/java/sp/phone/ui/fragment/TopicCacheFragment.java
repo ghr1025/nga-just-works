@@ -1,7 +1,7 @@
 package sp.phone.ui.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -61,6 +61,16 @@ public class TopicCacheFragment extends TopicSearchFragment implements View.OnLo
     @Override
     public void removeTopic(ThreadPageInfo pageInfo) {
         mAdapter.removeItem(pageInfo);
+    }
+
+    @Override
+    public String miuixDeleteConfirmText(ThreadPageInfo info) {
+        return getString(R.string.delete_favo_confirm_text);
+    }
+
+    @Override
+    public void onMiuixDelete(ThreadPageInfo info) {
+        mPresenter.removeCacheTopic(info);
     }
 
     @Override

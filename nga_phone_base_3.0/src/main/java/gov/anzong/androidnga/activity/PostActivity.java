@@ -2,6 +2,14 @@ package gov.anzong.androidnga.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.appcompat.app.AlertDialog;
+
+import sp.phone.common.User;
+import sp.phone.common.UserManager;
+import sp.phone.common.UserManagerImpl;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
@@ -25,7 +33,7 @@ public class PostActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_post);
+        setClassicOrMiuixContentView(R.layout.activity_post, R.id.content);
         setupToolbar();
         getOnBackPressedDispatcher().addCallback(this, new FragmentBackCallback(
                 () -> mPostFragment != null && mPostFragment.isAdded() && mPostFragment.getView() != null,
@@ -49,6 +57,53 @@ public class PostActivity extends BaseActivity {
         compatActivityAdjustResize(this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.content, mPostFragment).commit();
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
+    }
+
+    /**
+     * The classic toolbar carries an account spinner. The Miuix top app bar has no slot for it,
+     * so the same choice is offered as an options-menu entry while more than one account exists.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean created = super.onCreateOptionsMenu(menu);
+        if (isMiuixPage() && UserManagerImpl.getInstance().getUserList().size() > 1) {
+            menu.add(Menu.NONE, R.id.miuix_menu_switch_account, Menu.CATEGORY_SECONDARY, R.string.miuix_switch_account);
+            created = true;
+        }
+        return created;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.miuix_menu_switch_account) {
+            showAccountChooser();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showAccountChooser() {
+        UserManager manager = UserManagerImpl.getInstance();
+        java.util.List<User> users = manager.getUserList();
+        CharSequence[] names = new CharSequence[users.size()];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = users.get(i).getNickName();
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.miuix_switch_account)
+                .setSingleChoiceItems(names, manager.getActiveUserIndex(), (dialog, which) -> {
+                    if (which != manager.getActiveUserIndex()) {
+                        manager.setActiveUser(which);
+                    }
+                    dialog.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     @Override

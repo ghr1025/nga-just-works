@@ -1,6 +1,11 @@
 package gov.anzong.androidnga;
 
 import android.app.Application;
+import com.justwen.androidnga.ui.compose.miuix.MiuixMenuIcons;
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
+import gov.anzong.androidnga.base.util.ToastUtils;
+import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle;
+import com.justwen.androidnga.ui.compose.miuix.MiuixToast;
 import android.os.Process;
 import android.webkit.WebView;
 
@@ -33,6 +38,21 @@ public class NgaClientApp extends Application {
 
     private static boolean sNewVersion;
 
+    /** Miuix outline icons used instead of the classic Material ones in the Miuix appearance. */
+    private static void registerMiuixIcons() {
+        MiuixMenuIcons.registerMenuItem(R.id.menu_open_by_browser, R.drawable.ic_miuix_browser);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_search, R.drawable.ic_miuix_search);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_add_bookmark, R.drawable.ic_miuix_favorites);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_remove_bookmark, R.drawable.ic_miuix_favorites_fill);
+        MiuixMenuIcons.registerMenuItem(R.id.send, R.drawable.ic_miuix_send);
+        MiuixMenuIcons.registerMenuItem(R.id.delete_all, R.drawable.ic_miuix_delete);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_send_message, R.drawable.ic_miuix_email);
+        MiuixMenuIcons.registerIcon(R.drawable.btn_ic_search, R.drawable.ic_miuix_search);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_download, R.drawable.ic_miuix_download);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_share, R.drawable.ic_miuix_share);
+        MiuixMenuIcons.registerMenuItem(R.id.menu_download_all, R.drawable.ic_miuix_download);
+    }
+
     @Override
     public void onCreate() {
         ContextUtils.setApplication(this);
@@ -43,6 +63,17 @@ public class NgaClientApp extends Application {
         AppDatabase.init(this);
         initCoreModule();
         initRouter();
+        registerMiuixIcons();
+        MiuixTransitions.register(R.anim.miuix_open_enter, R.anim.miuix_open_exit,
+                R.anim.miuix_close_enter, R.anim.miuix_close_exit);
+        // Miuix appearance: every ToastUtils message (info/success/error/warn/show) as a Miuix toast.
+        ToastUtils.setOverride(text -> {
+            if (!NgaUiStyle.isMiuix()) {
+                return false;
+            }
+            MiuixToast.show(this, text, false);
+            return true;
+        });
         checkIn();
         super.onCreate();
 

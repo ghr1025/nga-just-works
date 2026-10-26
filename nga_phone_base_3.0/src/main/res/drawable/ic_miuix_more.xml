@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MiuixIcons.Regular.More from compose-miuix-ui miuix-icons 0.8.8 (Apache-2.0),
+     converted to a VectorDrawable for View-based Miuix screens. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="1042.8"
+    android:viewportHeight="1042.8">
+    <group android:scaleX="1" android:scaleY="-1" android:translateX="-143.6" android:translateY="896.9">
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M665,810Q636,810 615,789Q594,768 594,739Q594,710 615,689Q636,668 665,668Q694,668 715,689Q736,710 736,739Q736,768 715,789Q694,810 665,810ZM665,82Q636,82 615,61.5Q594,41 594,11Q594,-18 615,-38.5Q636,-59 665,-59Q694,-59 715,-38.5Q736,-18 736,11Q736,41 715,61.5Q694,82 665,82ZM665,446Q636,446 615,425Q594,404 594,375Q594,346 615,325Q636,304 665,304Q694,304 715,325Q736,346 736,375Q736,404 715,425Q694,446 665,446Z" />
+    </group>
+</vector>

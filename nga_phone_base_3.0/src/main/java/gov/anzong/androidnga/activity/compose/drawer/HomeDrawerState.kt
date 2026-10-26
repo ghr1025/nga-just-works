@@ -144,8 +144,8 @@ internal class HomeDrawerState(
     ) {
         var terminalCommand: HomeDrawerDragCommand = HomeDrawerDragCommand.Cancel
         anchoredState.anchoredDrag(MutatePriority.UserInput) { anchors ->
-            val minimum = anchors.minAnchor()
-            val maximum = anchors.maxAnchor()
+            val minimum = anchors.minPosition()
+            val maximum = anchors.maxPosition()
             drag@ while (true) {
                 when (val command = commands.receiveCatching().getOrNull()) {
                     is HomeDrawerDragCommand.DragBy -> {

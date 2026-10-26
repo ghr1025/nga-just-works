@@ -5,6 +5,9 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentColor
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
@@ -113,6 +116,7 @@ fun TabLayoutWithPager(
     content: @Composable ((index: Int) -> Unit)? = null,
 ) {
     val pagerState = rememberPagerState(pageCount = { tabs.size }, initialPage = initialPage)
+    val miuixTabs = rememberMiuixTabColors()
     val coroutineScope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
     val edgeThreshold = with(LocalDensity.current) { 56.dp.toPx() }
@@ -362,33 +366,60 @@ fun TabLayoutWithPager(
                     Modifier
                 }
 
-                Tab(
-                    selected = logicalSelectedIndex == index,
-                    onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(index)
+                val tabModifier = Modifier
+                    .onGloballyPositioned { tabBounds[stableKey] = it.boundsInRoot() }
+                    .zIndex(if (isDragging) 1f else 0f)
+                    .graphicsLayer {
+                        if (isDragging) {
+                            val baseLeft = tabBounds[stableKey]?.left ?: 0f
+                            translationX = draggedPointerX - baseLeft - draggedTouchOffsetX
+                            shadowElevation = 8.dp.toPx()
                         }
-                    },
-                    modifier = Modifier
-                        .onGloballyPositioned { tabBounds[stableKey] = it.boundsInRoot() }
-                        .zIndex(if (isDragging) 1f else 0f)
-                        .graphicsLayer {
-                            if (isDragging) {
-                                val baseLeft = tabBounds[stableKey]?.left ?: 0f
-                                translationX = draggedPointerX - baseLeft - draggedTouchOffsetX
-                                shadowElevation = 8.dp.toPx()
-                            }
-                        }
-                        .semantics { customActions = accessibilityActions }
-                        .then(reorderModifier),
-                    text = { Text(title) },
-                )
+                    }
+                    .semantics { customActions = accessibilityActions }
+                    .then(reorderModifier)
+                val onTabClick: () -> Unit = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                }
+                if (miuixTabs != null) {
+                    MiuixTab(
+                        title = title,
+                        selected = logicalSelectedIndex == index,
+                        dragging = isDragging,
+                        tabs = miuixTabs,
+                        onClick = onTabClick,
+                        modifier = tabModifier,
+                        index = index,
+                    )
+                } else {
+                    Tab(
+                        selected = logicalSelectedIndex == index,
+                        selectedContentColor = LocalContentColor.current,
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
+                        onClick = onTabClick,
+                        modifier = tabModifier,
+                        text = { Text(title, style = LocalTextStyle.current) },
+                    )
+                }
             }
         }
     }
 
     Column {
-        if (fixed) {
+        if (miuixTabs != null) {
+            // Miuix TabRow takes only strings, so it cannot carry the per-tab reorder gestures,
+            // bounds tracking and accessibility actions above. This row reproduces its look (rounded
+            // track, sliding selected block, bold selected text) around the same tab items.
+            MiuixReorderableTabRow(
+                selectedTabIndex = rowSelectedIndex,
+                tabs = miuixTabs,
+                modifier = Modifier.onGloballyPositioned { tabRowBounds = it.boundsInRoot() },
+            ) {
+                tabRowItems()
+            }
+        } else if (fixed) {
             TabRow(
                 selectedTabIndex = logicalSelectedIndex,
                 modifier = Modifier

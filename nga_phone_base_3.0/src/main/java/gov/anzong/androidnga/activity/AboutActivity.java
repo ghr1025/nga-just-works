@@ -11,6 +11,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.danielstone.materialaboutlibrary.MaterialAboutActivity;
+
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
+import com.justwen.androidnga.ui.compose.miuix.PredictiveBack;
+import gov.anzong.androidnga.ui.miuix.MiuixAboutPage;
 import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem;
 import com.danielstone.materialaboutlibrary.items.MaterialAboutItemOnClickAction;
 import com.danielstone.materialaboutlibrary.model.MaterialAboutCard;
@@ -31,11 +35,30 @@ public class AboutActivity extends MaterialAboutActivity {
     private static final String RELEASES_URL = PROJECT_URL + "/releases";
     private static final String ISSUES_URL = PROJECT_URL + "/issues";
 
+    /** Appearance this screen was created with. */
+    private boolean mMiuixStyle;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        mMiuixStyle = ThemeManager.getInstance().isMiuixStyle();
         ThemeManager.getInstance().applyAboutTheme(this);
         super.onCreate(savedInstanceState);
+        PredictiveBack.install(this);
+        if (mMiuixStyle) {
+            MiuixTransitions.apply(this);
+            // Same MaterialAboutList, rendered with Miuix cards.
+            MiuixAboutPage.show(this, getActivityTitle(), getMaterialAboutList(this));
+            return;
+        }
         applyStatusBarInsets();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isFinishing() && mMiuixStyle != ThemeManager.getInstance().isMiuixStyle()) {
+            recreate();
+        }
     }
 
     private void applyStatusBarInsets() {

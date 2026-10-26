@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MiuixIcons.Regular.Email from compose-miuix-ui miuix-icons 0.8.8 (Apache-2.0),
+     converted to a VectorDrawable for View-based Miuix screens. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="VectorPath"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="1279.2"
+    android:viewportHeight="1279.2">
+    <group android:scaleX="1" android:scaleY="-1" android:translateX="-25.4" android:translateY="1016.1">
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M1096,-36Q1149,-8 1175,43Q1191,72 1194.5,112.5Q1198,153 1198,249V503Q1198,599 1194.5,640Q1191,681 1175,709Q1150,759 1096,789Q1067,804 1026,807.5Q985,811 889,811H440Q344,811 302.5,807.5Q261,804 233,789Q181,760 154,709Q139,681 135.5,640Q132,599 132,503V249Q132,153 135.5,112.5Q139,72 154,43Q183,-9 233,-36Q261,-51 302.5,-54.5Q344,-58 440,-58H889Q985,-58 1026,-54.5Q1067,-51 1096,-36ZM275,40Q248,54 230,85Q221,101 219,125Q217,149 217,204V548L218,608Q218,623 225,624.5Q232,626 242,618L552,356Q586,328 602.5,316.5Q619,305 635,299Q649,294 665,294Q681,294 695,299Q710,305 726.5,316.5Q743,328 777,356L1088,618Q1100,628 1106,625.5Q1112,623 1112,608V548V204Q1112,149 1110,125Q1108,101 1099,85Q1083,56 1054,40Q1038,31 1014,29Q990,27 935,27H394Q340,27 316,29Q292,31 275,40ZM279,714Q293,722 316.5,723.5Q340,725 394,725H935Q990,725 1013,723.5Q1036,722 1050,714Q1056,711 1056.5,707.5Q1057,704 1053,700L681,388Q673,382 663.5,382Q654,382 646,389L275,701Q272,703 273,707Q274,711 279,714Z" />
+    </group>
+</vector>

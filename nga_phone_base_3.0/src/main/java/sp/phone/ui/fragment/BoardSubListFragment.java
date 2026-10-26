@@ -1,6 +1,8 @@
 package sp.phone.ui.fragment;
 
 import android.app.Activity;
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+import gov.anzong.androidnga.ui.miuix.MiuixListStyle;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +55,10 @@ public class BoardSubListFragment extends BaseRxFragment implements View.OnClick
         mListView.setLayoutManager(new LinearLayoutManager(inflater.getContext()));
         mListAdapter = new BoardSubListAdapter(inflater.getContext(), mBoardList);
         mListAdapter.setOnClickListener(this);
+        if (MiuixChromeKt.isMiuixHost(getActivity())) {
+            mListAdapter.setMiuixStyle(true);
+            MiuixListStyle.styleList(mListView);
+        }
         mListView.setAdapter(mListAdapter);
         return mListView;
     }

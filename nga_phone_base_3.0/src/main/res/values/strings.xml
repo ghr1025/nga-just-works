@@ -330,6 +330,12 @@
     <string name="setting_title_material_mode">Material Mode</string>
     <string name="setting_title_size">调整字体和头像大小</string>
     <string name="setting_title_material_theme">主题风格</string>
+    <string name="setting_title_ui_style">外观</string>
+    <string name="setting_title_predictive_back">预测返回手势</string>
+    <string name="setting_predictive_back_summary">侧滑返回时由系统预览上一页并跟随手指。部分系统手势（如 HyperOS）下返回动画会不连贯，关闭后松手再播放完整的返回动画</string>
+    <string name="setting_ui_style_classic">经典</string>
+    <string name="setting_ui_style_miuix">Miuix</string>
+    <string name="miuix_switch_account">切换账号</string>
     <string name="summary_show_with_webview">加载出错时默认使用内置浏览器打开</string>
     <string name="title_show_with_webview">使用内置浏览器打开</string>
     <string name="setting_title_sort_by_post">按发帖顺序排序</string>

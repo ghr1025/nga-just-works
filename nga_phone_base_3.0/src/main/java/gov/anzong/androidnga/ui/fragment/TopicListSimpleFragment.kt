@@ -25,7 +25,7 @@ class TopicListSimpleFragment() : TopicListBaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_topic_list_simple, container, false);
+        return wrapMiuix(inflater.inflate(R.layout.fragment_topic_list_simple, container, false))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

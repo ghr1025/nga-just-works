@@ -7,4 +7,5 @@
     <item name="menu_article_selection_copy" type="id" />
     <item name="menu_article_selection_select_all" type="id" />
     <item name="menu_article_selection_search" type="id" />
+    <item name="miuix_menu_switch_account" type="id" />
 </resources>

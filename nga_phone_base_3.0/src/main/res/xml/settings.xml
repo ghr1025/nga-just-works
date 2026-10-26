@@ -28,6 +28,20 @@
 
     <PreferenceCategory android:title="外观设置">
 
+        <ListSummaryPreference
+            android:defaultValue="classic"
+            android:dialogTitle="@string/setting_title_ui_style"
+            android:entries="@array/ui_style"
+            android:entryValues="@array/ui_style_value"
+            android:key="key_ui_style"
+            android:title="@string/setting_title_ui_style" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_predictive_back"
+            android:summary="@string/setting_predictive_back_summary"
+            android:title="@string/setting_title_predictive_back" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="nightmode"

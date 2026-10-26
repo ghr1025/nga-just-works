@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
@@ -33,12 +32,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -54,6 +56,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
+import com.justwen.androidnga.ui.compose.miuix.isMiuixHost
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.AddCircle
+import top.yukonga.miuix.kmp.icon.extended.Community
+import top.yukonga.miuix.kmp.icon.extended.Contacts
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.icon.extended.Info
+import top.yukonga.miuix.kmp.icon.extended.Link
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
 import com.justwen.androidnga.ui.compose.widget.ScaffoldApp
@@ -72,9 +82,10 @@ class NavigationDrawerFragment : BaseComposeFragment() {
         ViewModelProvider(this).get(NavigationDrawerViewModel::class.java)
     }
 
-    private val forumBoardViewModel: ForumBoardViewModel by lazy {
-        ViewModelProvider(this).get(ForumBoardViewModel::class.java)
-    }
+    // ForumBoardViewModel is an app-wide object (its constructor is private). lifecycle >= 2.9
+    // refuses to reflectively create ViewModels without a public no-arg constructor, so the
+    // singleton is used directly, as every other caller already does.
+    private val forumBoardViewModel: ForumBoardViewModel = ForumBoardViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -82,11 +93,58 @@ class NavigationDrawerFragment : BaseComposeFragment() {
         return ComposeView(inflater.context).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                AppTheme {
-                    NavigationDrawerView()
+                if (isMiuixHost(activity)) {
+                    MiuixHome()
+                } else {
+                    AppTheme {
+                        NavigationDrawerView()
+                    }
                 }
             }
         }
+    }
+
+    @Composable
+    private fun MiuixHome() {
+        val activity = requireActivity()
+        val replyCount by viewModel.replyCount.observeAsState()
+        val users by UserManager.getUserListLiveData().observeAsState(emptyList())
+        // Accounts logged in on this device have no avatar until their profile is fetched.
+        LaunchedEffect(users.map { it.userId to it.avatarUrl }) { DrawerAvatarLoader.loadMissing() }
+        MiuixHomeScreen(
+            title = activity.title.toString(),
+            menu = getOptionMenuData(),
+            forumBoardViewModel = forumBoardViewModel,
+            entries = listOf(
+                MiuixDrawerEntry("登录账号", MiuixIcons.Contacts) { viewModel.startLoginPage(activity) },
+                MiuixDrawerEntry("添加版面ID", MiuixIcons.AddCircle) {
+                    viewModel.showAddBoardDialog(this@NavigationDrawerFragment)
+                },
+                MiuixDrawerEntry("由URL读取", MiuixIcons.Link) {
+                    viewModel.forwardWithUrl(this@NavigationDrawerFragment)
+                },
+                MiuixDrawerEntry("清理收藏板块", MiuixIcons.Delete) {
+                    viewModel.showClearFavoriteBoards(requireContext())
+                },
+                MiuixDrawerEntry(
+                    "最近被喷",
+                    MiuixIcons.Community,
+                    badge = replyCount?.takeIf { it > 0 }?.toString(),
+                ) {
+                    viewModel.startNotificationActivity(activity)
+                },
+            ),
+            footer = MiuixDrawerEntry("关于", MiuixIcons.Info) {
+                viewModel.startAboutNgaClient(activity)
+            },
+            onAccountClick = { user, count ->
+                if (count > 0 && user != null) {
+                    viewModel.startProfilePage(activity, user)
+                } else {
+                    viewModel.startLoginPage(activity)
+                }
+            },
+        )
     }
 
     private fun getTopAppBarData(navigationIconAction: (() -> Unit)? = null): TopAppBarData {
@@ -149,9 +207,10 @@ class NavigationDrawerFragment : BaseComposeFragment() {
                 avatarColorFilter = ColorFilter.tint(Color.White)
             }
             Image(
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(width = 55.dp, height = 55.dp)
-                    .clip(shape = RoundedCornerShape(27.5.dp)),
+                    .clip(shape = CircleShape),
                 painter = avatarPainter,
                 colorFilter = avatarColorFilter,
                 contentDescription = ""

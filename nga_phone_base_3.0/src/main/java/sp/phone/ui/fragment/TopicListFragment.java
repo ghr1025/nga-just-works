@@ -71,7 +71,7 @@ public class TopicListFragment extends TopicSearchFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         int layoutId = R.layout.fragment_topic_list_board;
-        return inflater.inflate(layoutId, container, false);
+        return wrapMiuix(inflater.inflate(layoutId, container, false));
     }
 
     @Override
@@ -89,6 +89,11 @@ public class TopicListFragment extends TopicSearchFragment {
             mFabRefreshRepeater = null;
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public Runnable miuixFabAction() {
+        return this::startPostActivity;
     }
 
     @Override

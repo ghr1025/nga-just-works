@@ -19,6 +19,10 @@ class ThemeManagerService : IThemeManagerService {
         return ThemeManager.getInstance().getTheme(true)
     }
 
+    override fun isMiuixStyle(): Boolean {
+        return ThemeManager.getInstance().isMiuixStyle()
+    }
+
     override fun init(p0: Context?) {
     }
 }

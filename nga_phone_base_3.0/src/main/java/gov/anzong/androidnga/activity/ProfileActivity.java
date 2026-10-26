@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Objects;
 
 import butterknife.BindView;
+import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
+import gov.anzong.androidnga.ui.miuix.MiuixProfileStyle;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import gov.anzong.androidnga.R;
@@ -142,7 +145,16 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             }
         }
 
-        setContentView(R.layout.activity_user_profile);
+        View classic = getLayoutInflater().inflate(R.layout.activity_user_profile, null);
+        if (isMiuixPage()) {
+            // Miuix top app bar above the classic profile; the avatar header stays as content
+            // and its own toolbar row is hidden.
+            classic.findViewById(R.id.toolbar).setVisibility(View.GONE);
+            MiuixProfileStyle.style(classic);
+            setContentView(MiuixViewShellKt.miuixViewShell(this, classic, classic));
+        } else {
+            setContentView(classic);
+        }
         ButterKnife.bind(this);
         setupActionBar();
         refresh();
@@ -167,6 +179,9 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
     private void loadBasicProfile(ProfileData profileInfo) {
         mToolbarLayout.setTitle(profileInfo.getUserName());
+        if (isMiuixPage()) {
+            setTitle(profileInfo.getUserName());
+        }
         mUidTv.setText(String.format("用户ID : %s", profileInfo.getUid()));
         mPostCountTv.setText(profileInfo.getPostCount());
         mRegisterTimeTv.setText(profileInfo.getRegisterDate());
@@ -444,6 +459,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
         } else {
             bgColor = getResources().getColor(R.color.profilebgcolor);
         }
+        if (isMiuixPage()) {
+            int[] miuix = MiuixProfileStyle.webColors(contentTV);
+            bgColor = miuix[0];
+            fgColor = miuix[1];
+        }
         bgColor = bgColor & 0xffffff;
         final String bgcolorStr = String.format("%06x", bgColor);
 
@@ -467,6 +487,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             bgColor = getResources().getColor(R.color.profilebgcolor);
             fgColor = getResources().getColor(R.color.profilefcolor);
         }
+        if (isMiuixPage()) {
+            int[] miuix = MiuixProfileStyle.webColors(contentTV);
+            bgColor = miuix[0];
+            fgColor = miuix[1];
+        }
         bgColor = bgColor & 0xffffff;
         final String bgcolorStr = String.format("%06x", bgColor);
 
@@ -488,6 +513,11 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
         } else {
             bgColor = getResources().getColor(R.color.profilebgcolor);
             fgColor = getResources().getColor(R.color.profilefcolor);
+        }
+        if (isMiuixPage()) {
+            int[] miuix = MiuixProfileStyle.webColors(contentTV);
+            bgColor = miuix[0];
+            fgColor = miuix[1];
         }
         bgColor = bgColor & 0xffffff;
         final String bgcolorStr = String.format("%06x", bgColor);
@@ -569,5 +599,10 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             loadProfileInfo(data);
         }
         invalidateOptionsMenu();
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
     }
 }

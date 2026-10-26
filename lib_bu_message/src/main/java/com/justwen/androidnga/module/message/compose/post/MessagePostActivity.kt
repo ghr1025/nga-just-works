@@ -31,6 +31,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.justwen.androidnga.base.activity.ARouterConstants
 import com.justwen.androidnga.module.message.R
 import com.justwen.androidnga.ui.compose.BaseComposeActivity
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import gov.anzong.androidnga.base.util.ToastUtils
 
 @Route(path = ARouterConstants.ACTIVITY_MESSAGE_POST)
@@ -134,6 +135,21 @@ class MessagePostActivity : BaseComposeActivity() {
             }
         }
 
+    }
+
+
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        MiuixMessageComposer(
+            page = page,
+            newPostMode = viewModel.isNewPostMode(),
+            initialRecipient = viewModel.postData.recipient,
+            initialSubject = viewModel.postData.postSubject,
+            onRecipientChange = { viewModel.postData.recipient = it },
+            onSubjectChange = { viewModel.postData.postSubject = it },
+            onContentChange = { viewModel.postData.postContent = it },
+            onSend = { viewModel.postMessage() },
+        )
     }
 
 }

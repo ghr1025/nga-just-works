@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
@@ -99,7 +98,7 @@ public final class AiSummaryDialog {
                     @Override
                     public void onConfigurationRequired() {
                         dismiss();
-                        Toast.makeText(context, R.string.ai_summary_configure_first, Toast.LENGTH_SHORT).show();
+                        gov.anzong.androidnga.base.util.ToastUtils.show(context.getString(R.string.ai_summary_configure_first));
                         SettingsAiFragment.open(context);
                     }
                 });
@@ -181,7 +180,7 @@ public final class AiSummaryDialog {
         if (clipboard != null) {
             clipboard.setPrimaryClip(ClipData.newPlainText(
                     context.getString(R.string.ai_summary_action), copyText));
-            Toast.makeText(context, R.string.ai_summary_copied, Toast.LENGTH_SHORT).show();
+            gov.anzong.androidnga.base.util.ToastUtils.show(context.getString(R.string.ai_summary_copied));
         }
     }
 

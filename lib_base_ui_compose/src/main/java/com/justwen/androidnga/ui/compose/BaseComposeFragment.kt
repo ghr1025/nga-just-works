@@ -12,17 +12,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageBox
+import com.justwen.androidnga.ui.compose.miuix.MiuixScaffoldApp
+import com.justwen.androidnga.ui.compose.miuix.NgaMiuixTheme
+import com.justwen.androidnga.ui.compose.miuix.isMiuixHost
 import com.justwen.androidnga.ui.compose.theme.AppTheme
 import com.justwen.androidnga.ui.compose.widget.ScaffoldApp
 import com.justwen.androidnga.ui.compose.widget.TopAppBarData
 
-open class BaseComposeFragment : Fragment() {
+open class BaseComposeFragment : Fragment(), MiuixFragment {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if (isMiuixHost(activity)) {
+            return ComposeView(inflater.context).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    NgaMiuixTheme {
+                        MiuixScaffoldApp(topAppBarData = getTopAppBarData()) { page ->
+                            MiuixContentView(page)
+                        }
+                    }
+                }
+            }
+        }
         return ComposeView(inflater.context).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -51,5 +69,13 @@ open class BaseComposeFragment : Fragment() {
     @Composable
     open fun ContentView() {
 
+    }
+
+    /** Content of the Miuix appearance; see BaseComposeActivity.MiuixContentView. */
+    @Composable
+    open fun MiuixContentView(page: MiuixPageContent) {
+        MiuixPageBox(page.padding) {
+            ContentView()
+        }
     }
 }

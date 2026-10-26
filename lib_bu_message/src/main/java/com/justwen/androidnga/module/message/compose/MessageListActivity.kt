@@ -28,6 +28,7 @@ import com.justwen.androidnga.base.service.api.IUserManagerService
 import com.justwen.androidnga.core.data.MessageThreadPageInfo
 import com.justwen.androidnga.module.message.R
 import com.justwen.androidnga.ui.compose.BaseComposeActivity
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
 import com.justwen.androidnga.ui.compose.widget.PullRefreshColumn
 
@@ -69,7 +70,13 @@ class MessageListActivity : BaseComposeActivity() {
 
     }
 
-    private fun startMessageDetail(messageInfo: MessageThreadPageInfo) {
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        val items = viewModel.getMessageListData().collectAsLazyPagingItems()
+        MiuixMessageList(page, items, ::startMessageDetail)
+    }
+
+    internal fun startMessageDetail(messageInfo: MessageThreadPageInfo) {
         val mid = messageInfo.mid
         ARouter.getInstance().build(ARouterConstants.ACTIVITY_MESSAGE_DETAIL)
             .withInt("mid", mid)

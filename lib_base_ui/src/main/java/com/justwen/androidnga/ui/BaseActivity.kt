@@ -15,14 +15,31 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.alibaba.android.arouter.launcher.ARouter
 import com.justwen.androidnga.base.service.api.IThemeManagerService
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState
+import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions
+import com.justwen.androidnga.ui.compose.miuix.PredictiveBack
+import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle
+import com.justwen.androidnga.ui.compose.miuix.miuixViewShell
 
-abstract class BaseActivity : AppCompatActivity() {
+abstract class BaseActivity : AppCompatActivity(), MiuixChromeOwner {
 
     protected var mNaviBarHeight: Int = 0
 
+    final override val miuixChrome = MiuixChromeState()
+
+    final override var isMiuixStyle: Boolean = false
+        private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        isMiuixStyle = NgaUiStyle.isMiuix()
         initTheme()
         super.onCreate(savedInstanceState)
+        // Before initHandleBackEvent, so that callback keeps running first.
+        PredictiveBack.install(this)
+        if (isMiuixStyle) {
+            MiuixTransitions.apply(this)
+        }
         initContentView()
         initHandleBackEvent()
         initEdgeToEdge()
@@ -75,7 +92,8 @@ abstract class BaseActivity : AppCompatActivity() {
     private fun initEdgeToEdge() {
         enableEdgeToEdge()
         val contentView = findViewById<View>(android.R.id.content)
-        if (contentView != null) {
+        // Miuix pages pad the system bars inside their own Scaffold.
+        if (contentView != null && !isMiuixStyle) {
             val initialPaddingLeft = contentView.paddingLeft
             val initialPaddingTop = contentView.paddingTop
             val initialPaddingRight = contentView.paddingRight
@@ -118,11 +136,37 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     open fun initContentView() {
+        if (isMiuixStyle) {
+            val classic = layoutInflater.inflate(R.layout.activity_toolbar_template, null)
+            setContentView(miuixViewShell(this, classic, classic.findViewById(R.id.main_content)))
+            return
+        }
         setContentView(R.layout.activity_toolbar_template)
         setupToolbar()
     }
 
+    override fun onTitleChanged(title: CharSequence?, color: Int) {
+        super.onTitleChanged(title, color)
+        miuixChrome.updateTitle(title)
+    }
+
+    override fun invalidateOptionsMenu() {
+        super.invalidateOptionsMenu()
+        miuixChrome.invalidateMenu()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The appearance may have been switched on another screen; rebuild with the new one.
+        if (!isFinishing && isMiuixStyle != NgaUiStyle.isMiuix()) {
+            recreate()
+        }
+    }
+
     open fun setupToolbar(toolbar: Toolbar = findViewById(R.id.toolbar)) {
+        if (isMiuixStyle) {
+            return
+        }
         if (supportActionBar == null) {
             setSupportActionBar(toolbar)
             supportActionBar?.apply {

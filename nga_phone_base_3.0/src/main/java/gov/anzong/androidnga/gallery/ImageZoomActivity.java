@@ -55,9 +55,14 @@ public class ImageZoomActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_zoom);
+        setClassicOrMiuixContentView(R.layout.activity_image_zoom, R.id.gallery_fl);
         receiveIntent();
         initBottomView();
+        if (isMiuixPage()) {
+            // Loading spinner in the Miuix primary colour; the page itself is the Miuix surface.
+            mProgressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.miuix_primary)));
+        }
         initGallery();
         initActionBar();
 
@@ -65,6 +70,11 @@ public class ImageZoomActivity extends BaseActivity {
 
     private void initActionBar() {
         setupToolbar();
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
     }
 
     private void initGallery() {

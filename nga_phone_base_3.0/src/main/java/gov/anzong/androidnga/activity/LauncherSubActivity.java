@@ -4,6 +4,10 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
+import com.justwen.androidnga.ui.compose.miuix.MiuixFragment;
+
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.ui.fragment.BasePreferenceFragment;
 import sp.phone.ui.fragment.BaseFragment;
@@ -12,21 +16,55 @@ public class LauncherSubActivity extends BaseActivity {
 
     private BaseFragment mBaseFragment;
 
+    /** Resolved before super.onCreate so the host can pick its Miuix or classic chrome. */
+    @Nullable
+    private Class<?> mFragmentClass;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
         Intent intent = getIntent();
+        String fragmentStr = intent.getStringExtra("fragment");
+        mFragmentClass = resolveFragmentClass(fragmentStr);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_toolbar_template);
-        setupToolbar();
+        if (isMiuixPage() && isFullMiuixFragment()) {
+            // The fragment draws its whole Miuix page, top app bar included.
+            setMiuixContentView(R.id.main_content);
+        } else {
+            // Classic fragments get the Miuix top app bar above their content in the Miuix
+            // appearance, and the toolbar layout in the classic one.
+            setClassicOrMiuixContentView(R.layout.activity_toolbar_template, R.id.main_content);
+            setupToolbar();
+        }
         getOnBackPressedDispatcher().addCallback(this, new FragmentBackCallback(
                 () -> mBaseFragment != null && mBaseFragment.isAdded() && mBaseFragment.getView() != null,
                 () -> mBaseFragment.onBackPressed(),
                 () -> getOnBackPressedDispatcher().onBackPressed()));
-        String fragmentStr = intent.getStringExtra("fragment");
         if (fragmentStr != null) {
             commitFragment(fragmentStr);
         }
+    }
+
+    @Nullable
+    private static Class<?> resolveFragmentClass(@Nullable String fragmentStr) {
+        if (fragmentStr == null) {
+            return null;
+        }
+        try {
+            return Class.forName(fragmentStr);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    /** Every hosted page uses Miuix chrome in the Miuix appearance. */
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
+    }
+
+    private boolean isFullMiuixFragment() {
+        return mFragmentClass != null && MiuixFragment.class.isAssignableFrom(mFragmentClass);
     }
 
     private void commitFragment(String fragmentStr) {

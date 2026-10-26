@@ -16,6 +16,9 @@ public class HtmlData implements Cloneable {
 
     private boolean mDarkMode;
 
+    /** Rendered for the Miuix appearance (Miuix quote style). */
+    private boolean mMiuixStyle;
+
     private String mSubject;
 
     private String mRawData;
@@ -60,6 +63,14 @@ public class HtmlData implements Cloneable {
 
     public void setDarkMode(boolean darkMode) {
         mDarkMode = darkMode;
+    }
+
+    public boolean isMiuixStyle() {
+        return mMiuixStyle;
+    }
+
+    public void setMiuixStyle(boolean miuixStyle) {
+        mMiuixStyle = miuixStyle;
     }
 
     public String getSubject() {

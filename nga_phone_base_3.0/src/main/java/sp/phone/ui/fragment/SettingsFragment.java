@@ -28,6 +28,7 @@ import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.common.util.EmoticonOrderStore;
 import gov.anzong.androidnga.ui.fragment.BasePreferenceFragment;
+import gov.anzong.androidnga.ui.miuix.MiuixPreferencesKt;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.theme.ThemeManager;
 import sp.phone.ui.fragment.dialog.AlertDialogFragment;
@@ -47,6 +48,10 @@ public class SettingsFragment extends BasePreferenceFragment
     private void configPreference() {
         findPreference(PreferenceKey.NIGHT_MODE).setEnabled(!ThemeManager.getInstance().isNightModeFollowSystem());
         findPreference(PreferenceKey.MATERIAL_THEME).setEnabled(!ThemeManager.getInstance().isNightMode());
+        // 经典外观的配色方案在 Miuix 外观下不起作用。
+        findPreference(PreferenceKey.MATERIAL_THEME).setVisible(!ThemeManager.getInstance().isMiuixStyle());
+        // 图片域名的选择页带输入框，Miuix 外观下也沿用它，而不是普通下拉。
+        findPreference(PreferenceKey.KEY_IMAGE_DOMAIN).getExtras().putBoolean(MiuixPreferencesKt.EXTRA_CUSTOM_DIALOG, true);
 
         findPreference(PreferenceKey.KEY_CLEAR_CACHE).setOnPreferenceClickListener(preference -> {
             showClearCacheDialog();
@@ -143,6 +148,7 @@ public class SettingsFragment extends BasePreferenceFragment
                 findPreference(PreferenceKey.NIGHT_MODE).setEnabled(Boolean.FALSE.equals(newValue));
                 SettingsActivity.sRecreated = true;
                 break;
+            case PreferenceKey.KEY_UI_STYLE:
             case PreferenceKey.MATERIAL_THEME:
                 SettingsActivity.sRecreated = true;
                 ThreadUtils.postOnMainThreadDelay(() -> {

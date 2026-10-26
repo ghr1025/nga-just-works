@@ -1,6 +1,6 @@
 package sp.phone.ui.fragment;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -36,6 +36,16 @@ public class TopicFavoriteFragment extends TopicSearchFragment implements View.O
     @Override
     public void removeTopic(ThreadPageInfo pageInfo) {
         mAdapter.removeItem(pageInfo);
+    }
+
+    @Override
+    public String miuixDeleteConfirmText(ThreadPageInfo info) {
+        return getString(R.string.delete_favo_confirm_text);
+    }
+
+    @Override
+    public void onMiuixDelete(ThreadPageInfo info) {
+        mPresenter.removeTopic(info, info.getPosition());
     }
 
     @Override

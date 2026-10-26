@@ -43,9 +43,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
+import com.justwen.androidnga.ui.compose.miuix.isMiuixComposition
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import com.justwen.androidnga.ui.compose.widget.PagerInteractionState
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
 import com.justwent.androidnga.bu.UserManager
@@ -127,6 +130,10 @@ fun ForumBoardView(
 
 @Composable
 fun ForumBoardGroupView(board: BoardEntity, context: Context = ContextUtils.getContext()) {
+    if (isMiuixComposition) {
+        SmallTitle(text = board.name)
+        return
+    }
     Row(modifier = Modifier.padding(16.dp)) {
         Image(
             modifier = Modifier.size(24.dp),
@@ -151,20 +158,24 @@ private fun ForumBoardGridItemView(
 ) {
     val paddingValue = 4.dp
     val imageSize = 48.dp
+    val miuix = isMiuixComposition
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .padding(paddingValue)
             .fillMaxWidth()
+            .then(if (miuix) Modifier.miuixBoardTile() else Modifier)
             .clickable {
                 if (clickEnabled) {
                     forumBoardViewModel.showTopicList(child)
                 }
             }
     ) {
-        Spacer(modifier = Modifier.height(paddingValue))
-        val resId = getResId(child)
+        // Miuix tiles are cards: give the icon and label room inside the card.
+        val tileInset = if (miuix) 10.dp else paddingValue
+        Spacer(modifier = Modifier.height(tileInset))
+        val resId = remember(child.fid, child.stid) { getResId(child) }
         if (resId > 0) {
             Image(
                 modifier = Modifier.size(imageSize),
@@ -185,13 +196,19 @@ private fun ForumBoardGridItemView(
         }
         Text(
             modifier = Modifier
-                .padding(top = paddingValue, bottom = paddingValue),
-            color = Color(context.resources.getColor(R.color.text_color, null)),
-            text = child.name
+                .padding(top = paddingValue, bottom = paddingValue)
+                .then(if (miuix) Modifier.padding(horizontal = 8.dp) else Modifier),
+            color = if (miuix) miuixBoardTextColor() else Color(context.resources.getColor(R.color.text_color, null)),
+            text = child.name,
+            maxLines = if (miuix) 1 else Int.MAX_VALUE,
+            overflow = if (miuix) TextOverflow.Ellipsis else TextOverflow.Clip,
         )
-        Spacer(modifier = Modifier.height(paddingValue))
+        Spacer(modifier = Modifier.height(tileInset))
     }
 }
+
+/** Resource ids of bundled board icons by fid; getIdentifier is a reflective lookup per call. */
+private val boardIconIds = HashMap<Int, Int>()
 
 private fun getResId(board: BoardEntity): Int {
     if (board.stid != 0) {
@@ -199,9 +216,11 @@ private fun getResId(board: BoardEntity): Int {
     }
 
     val fid = board.fid
-    val resName = if (fid > 0) "p$fid" else "p_" + abs(fid)
-    return ContextUtils.getResources()
-        .getIdentifier(resName, "drawable", ContextUtils.getContext().packageName)
+    return boardIconIds.getOrPut(fid) {
+        val resName = if (fid > 0) "p$fid" else "p_" + abs(fid)
+        ContextUtils.getResources()
+            .getIdentifier(resName, "drawable", ContextUtils.getContext().packageName)
+    }
 }
 
 @Composable
@@ -258,7 +277,11 @@ fun ForumBoardBookmarkContent(
     Column (Modifier.fillMaxSize()) {
 
         if (UserManager.getUserList().size == 1) {
-            Text(modifier = Modifier.padding(8.dp), text = "建议登录多个账号，可有效改善跳转系统浏览器问题")
+            Text(
+                modifier = Modifier.padding(if (isMiuixComposition) 16.dp else 8.dp),
+                text = "建议登录多个账号，可有效改善跳转系统浏览器问题",
+                color = if (isMiuixComposition) miuixBoardHintColor() else Color.Unspecified,
+            )
         }
 
         LazyVerticalGrid(

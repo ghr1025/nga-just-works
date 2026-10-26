@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.RadioButton
@@ -25,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -35,6 +36,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.justwen.androidnga.base.activity.ARouterConstants
 import com.justwen.androidnga.module.account.R
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
+import com.justwen.androidnga.ui.compose.miuix.MiuixPageContent
 import com.justwent.androidnga.bu.UserManager
 import sp.phone.common.User
 
@@ -59,6 +61,17 @@ class UserManagerFragment : BaseComposeFragment() {
                 }
             }
         }
+    }
+
+    @Composable
+    override fun MiuixContentView(page: MiuixPageContent) {
+        MiuixUserManagerPage(
+            page = page,
+            onAddAccount = {
+                ARouter.getInstance().build(ARouterConstants.ACTIVITY_LOGIN).navigation()
+            },
+            onShowProfile = ::showUserProfile,
+        )
     }
 
     @Composable
@@ -115,9 +128,10 @@ class UserManagerFragment : BaseComposeFragment() {
                 )
 
                 Image(
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(shape = RoundedCornerShape(15.dp)),
+                        .clip(shape = CircleShape),
                     painter = avatarPainter,
                     contentDescription = ""
                 )

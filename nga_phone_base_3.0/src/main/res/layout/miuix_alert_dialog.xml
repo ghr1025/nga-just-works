@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Derived from AppCompat 1.7.1 abc_alert_dialog_material.xml
+     (Copyright (C) 2015 The Android Open Source Project, Apache License 2.0).
+     Miuix appearance: centred title and message, equal capsule buttons. View ids are unchanged,
+     so AlertController binds it exactly like the stock layout.
+-->
+<androidx.appcompat.widget.AlertDialogLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parentPanel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal|top"
+    android:orientation="vertical">
+
+    <include layout="@layout/miuix_alert_dialog_title"/>
+
+    <FrameLayout
+        android:id="@+id/contentPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp">
+
+        <ImageView
+              android:id="@+id/scrollIndicatorUp"
+              android:importantForAccessibility="no"
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:layout_gravity="top"
+              android:background="#1f000000"
+              app:backgroundTint="?android:attr/colorForeground"
+              android:visibility="gone"/>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.widget.Space
+                    android:id="@+id/textSpacerNoTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/abc_dialog_padding_top_material"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@android:id/message"
+                    style="@style/TextAppearance.AppCompat.Subhead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/miuix_on_surface_summary"
+                    android:paddingLeft="?attr/dialogPreferredPadding"
+                    android:paddingRight="?attr/dialogPreferredPadding"/>
+
+                <android.widget.Space
+                    android:id="@+id/textSpacerNoButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/abc_dialog_padding_top_material"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <ImageView
+              android:id="@+id/scrollIndicatorDown"
+              android:importantForAccessibility="no"
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:layout_gravity="bottom"
+              android:background="#1f000000"
+              app:backgroundTint="?android:attr/colorForeground"
+              android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/customPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp">
+
+        <FrameLayout
+            android:id="@+id/custom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
+
+    <include layout="@layout/miuix_alert_dialog_button_bar"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"/>
+
+</androidx.appcompat.widget.AlertDialogLayout>

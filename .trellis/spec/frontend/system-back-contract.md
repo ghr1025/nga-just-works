@@ -38,8 +38,30 @@ The Activity lifecycle owns callback activation and removal.
   BackHandler and Kotlin WebView history under their existing owners. This
   change does not add exit/draft confirmation or route every finish through
   the dispatcher.
-- Do not add a global back opt-out, custom predictive animation, panel-state
-  framework, or duplicate window insets to perform this migration.
+- Do not add a custom predictive animation, panel-state framework, or duplicate
+  window insets to perform this migration. The only app-wide back callback is
+  the user-controlled predictive back setting below.
+
+## 3a. Predictive back setting
+
+Settings › 外观设置 › 预测返回手势 (`key_predictive_back`, default off). With
+target 36 the system runs predictive back for every activity; on launchers whose
+full-screen gesture does not feed the gesture progress continuously (HyperOS,
+Xiaomi 13 Pro) the cross-activity close animation then plays in pieces.
+
+- `PredictiveBack.install(activity)` registers `PageBackCallback` first in
+  onCreate of BaseActivity (app and lib_base_ui), BaseComposeActivity,
+  TemplateComposeActivity and AboutActivity, so it sits at the bottom of the
+  dispatcher chain. FragmentBackCallback, BaseFragment, the drawer BackHandler
+  and WebView history are added later and keep running first.
+- While the setting is off the callback is enabled: the system treats back as
+  app-handled, skips the predictive animation, and the callback finishes the
+  activity, which plays the regular close transition once. While on, the
+  callback is disabled and the system predictive back runs as before.
+- The callback follows a change of the setting immediately (preference
+  listener, kept alive by the callback, removed on destroy) and re-reads it on
+  every resume, so a change applies to pages already open. The manifest flag `enableOnBackInvokedCallback` is not
+  used because it cannot change at runtime.
 
 ## 4. Validation & Error Matrix
 
@@ -61,7 +83,8 @@ The Activity lifecycle owns callback activation and removal.
 ## 6. Tests Required
 
 Run FragmentBackCallbackTest against the production callback with fake
-availability/consumer/fallback functions. Assert consumer order, unavailable
+availability/consumer/fallback functions, and PageBackCallbackTest for the
+setting-driven enabled state, single finish and refresh on a changed setting. Assert consumer order, unavailable
 view skipping, single fallback, disabled state during fallback, and restoration
 on both success and exception. Compile both Java hosts and inspect lifecycle
 registration. Keep reader/editor/draft/drawer regression suites intact.

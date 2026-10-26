@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Miuix back: the previous page returns from a quarter on the left (Miuix NavDisplay). -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="500"
+    android:interpolator="@interpolator/miuix_nav_easing"
+    android:shareInterpolator="true">
+    <translate android:fromXDelta="-25%" android:toXDelta="0" />
+</set>

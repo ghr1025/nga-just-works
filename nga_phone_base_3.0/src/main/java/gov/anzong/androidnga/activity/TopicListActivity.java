@@ -104,6 +104,12 @@ public class TopicListActivity extends BaseActivity {
         }
     }
 
+    /** Every topic list fragment hosted here renders with Miuix in the Miuix appearance. */
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
+    }
+
     private boolean isBoardTopicList() {
         return mRequestParam.recommend == 0
                 && mRequestParam.twentyfour == 0

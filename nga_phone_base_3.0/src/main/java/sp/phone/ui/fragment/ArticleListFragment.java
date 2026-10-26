@@ -19,6 +19,8 @@ import com.alibaba.android.arouter.launcher.ARouter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderStyle;
 import butterknife.Unbinder;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
@@ -389,7 +391,11 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                 mArticleAdapter::setAuthorLocations);
         mListView.setEmptyView(view.findViewById(R.id.empty_view));
         applyReplyFabClearance();
-        if (PhoneConfiguration.getInstance().useSolidColorBackground()) {
+        if (MiuixChromeKt.isMiuixHost(getActivity())) {
+            mArticleAdapter.setMiuixStyle(true);
+            MiuixReaderStyle.styleFloorList(mListView, mSwipeRefreshLayout, mLoadingView);
+        }
+        if (PhoneConfiguration.getInstance().useSolidColorBackground() && !MiuixChromeKt.isMiuixHost(getActivity())) {
             mListView.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
         }
 

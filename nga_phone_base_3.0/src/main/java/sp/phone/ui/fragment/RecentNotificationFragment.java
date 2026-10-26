@@ -1,6 +1,6 @@
 package sp.phone.ui.fragment;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,7 +20,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixChromeKt;
+
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.ui.miuix.MiuixListStyle;
 import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.common.PhoneConfiguration;
@@ -86,7 +89,14 @@ public class RecentNotificationFragment extends BaseRxFragment implements OnHttp
         listView.setLayoutManager(new LinearLayoutManager(getContext()));
         listView.setAdapter(mNotificationAdapter);
         listView.setEmptyView(mEmptyLayout);
-        listView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        if (MiuixChromeKt.isMiuixHost(getActivity())) {
+            mNotificationAdapter.setMiuixStyle(true);
+            MiuixListStyle.styleList(listView);
+            MiuixListStyle.styleEmptyText(mEmptyLayout);
+            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.miuix_surface));
+        } else {
+            listView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        }
 
         mNotificationTask.queryRecentReply(this);
     }

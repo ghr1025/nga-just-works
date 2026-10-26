@@ -32,6 +32,11 @@ android {
     buildFeatures {
         compose true
     }
+    testOptions {
+        // Compose runtime traces and logs through android.os.Trace/android.util.Log, which the
+        // plain JVM android.jar stubs would otherwise throw from during composition tests.
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -40,6 +45,7 @@ dependencies {
     api "androidx.compose.ui:ui:$compose_ui_version"
     api "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
     api "androidx.compose.material:material:$compose_version"
+    api "androidx.compose.material:material-icons-core:$compose_material_icons_version"
     debugApi "androidx.compose.ui:ui-tooling:$compose_ui_version"
     implementation 'com.alibaba:arouter-api:1.5.2'
 
@@ -51,6 +57,11 @@ dependencies {
     // paging
     implementation "androidx.paging:paging-compose:$paging_version"
 
+    api "top.yukonga.miuix.kmp:miuix-android:$miuix_version"
+    api "top.yukonga.miuix.kmp:miuix-icons-android:$miuix_version"
+    // Builds the host options menu for Miuix top app bars with the same item semantics as the
+    // classic AppCompat toolbar.
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation project(':lib_base_service_api')
     implementation project(':lib_base_common')
 

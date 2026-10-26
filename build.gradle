@@ -1,8 +1,16 @@
 buildscript {
     ext {
-        compose_version = '1.6.8'
-        compose_ui_version = '1.7.0'
-        compose_activity_version = '1.10.1'
+        // Material and Material3 must stay on the Compose release train of the foundation that
+        // Miuix resolves (compose-bom 2026.03.00): Material 1.6.8 provides a legacy ripple that
+        // foundation >= 1.7 clickable rejects, crashing every classic screen on first frame.
+        compose_version = '1.10.5'
+        compose_ui_version = '1.10.5'
+        compose_material3_version = '1.4.0'
+        // Material 1.7+ no longer exports material-icons-core; it is versioned separately.
+        compose_material_icons_version = '1.7.8'
+        compose_activity_version = '1.12.4'
+        // Miuix popups need the view-tree NavigationEventDispatcherOwner set by activity >= 1.12.
+        miuix_version = '0.8.8'
         core_ktx_version = '1.7.0'
         appcompat_version = "1.7.1"
         androidx_material_version = '1.12.0'

@@ -12,10 +12,14 @@ import java.util.List;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.base.widget.TabLayoutEx;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderCallbacks;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderShellKt;
+import gov.anzong.androidnga.ui.miuix.MiuixReaderTabsState;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.Unit;
 import sp.phone.mvp.model.thread.ArticleAccounts;
 import sp.phone.mvp.model.thread.ArticleCacheEntry;
 import sp.phone.mvp.model.thread.ArticleCacheStore;
@@ -60,7 +64,22 @@ public class ArticleCacheActivity extends BaseActivity {
     private void failLoad() { ToastUtils.error("读取缓存失败！"); finish(); }
 
     private void initViews(List<Integer> pages) {
-        setContentView(R.layout.fragment_article_tab);
+        View classic = getLayoutInflater().inflate(R.layout.fragment_article_tab, null);
+        MiuixReaderTabsState miuixTabs = null;
+        if (isMiuixPage()) {
+            miuixTabs = new MiuixReaderTabsState();
+            ViewPager pager = classic.findViewById(R.id.pager);
+            MiuixReaderCallbacks callbacks = new MiuixReaderCallbacks(
+                    index -> {
+                        pager.setCurrentItem(index, false);
+                        return Unit.INSTANCE;
+                    },
+                    () -> Unit.INSTANCE, null, null, null, 1L);
+            setContentView(MiuixReaderShellKt.miuixReaderShell(classic, classic.findViewById(R.id.container),
+                    this, miuixTabs, callbacks));
+        } else {
+            setContentView(classic);
+        }
         ArticlePagerAdapter adapter = new ArticlePagerAdapter(getSupportFragmentManager(), mRequestParam);
         List<String> pageNames = new ArrayList<>();
         for (Integer page : pages) pageNames.add(String.valueOf(page));
@@ -75,6 +94,22 @@ public class ArticleCacheActivity extends BaseActivity {
         int count = pages.size();
         tabLayout.setTabOnScreenLimit(count <= 5 ? count : 0);
         tabLayout.setUpWithViewPager(viewPager);
+        if (miuixTabs != null) {
+            miuixTabs.setPages(pageNames);
+            miuixTabs.setSelected(viewPager.getCurrentItem());
+            MiuixReaderTabsState tabs = miuixTabs;
+            viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    tabs.setSelected(position);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
     }
 
     @Override protected void onResume() {

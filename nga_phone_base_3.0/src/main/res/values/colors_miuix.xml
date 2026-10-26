@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Miuix 0.8.8 lightColorScheme() values used by the legacy View fallback of the Miuix appearance. -->
+<resources>
+    <color name="miuix_primary">#FF3482FF</color>
+    <color name="miuix_surface">#FFF7F7F7</color>
+    <color name="miuix_surface_container">#FFFFFFFF</color>
+    <color name="miuix_on_surface_summary">#99000000</color>
+    <color name="miuix_on_surface">#FF000000</color>
+    <color name="miuix_divider_line">#FFE0E0E0</color>
+    <color name="miuix_dialog_button_secondary">#FFF0F0F0</color>
+</resources>

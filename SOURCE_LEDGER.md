@@ -29,6 +29,14 @@ endorsed by NGA or the upstream author.
 - The pinned upstream commit declares `minSdk 30`. This fork restores the
   installation floor to `minSdk 29` while keeping `compileSdk 35`,
   `targetSdk 35`, and the existing single `arm64-v8a` APK strategy.
+- An optional Miuix appearance is built on
+  [compose-miuix-ui](https://github.com/compose-miuix-ui/miuix) `0.8.8`
+  (Apache License 2.0), declared as Maven dependencies. Vector drawables named
+  `ic_miuix_*` that carry a "from compose-miuix-ui miuix-icons 0.8.8" header
+  are converted from `MiuixIcons` path data of the same release; the thumb
+  up/down and globe drawables are original outline icons drawn for this app.
+  `miuix_alert_dialog*.xml` layouts are derived from AndroidX AppCompat 1.7.1
+  `abc_alert_dialog_*_material.xml` (Apache License 2.0) and keep its view ids.
 
 No credentials, cookies, keystores, local Android SDKs, build output, or user
 content are part of the imported source.
