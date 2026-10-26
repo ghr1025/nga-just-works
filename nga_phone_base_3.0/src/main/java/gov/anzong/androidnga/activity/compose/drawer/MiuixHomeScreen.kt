@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
@@ -233,9 +234,11 @@ private fun MiuixAccountCard(onAccountClick: (User?, Int) -> Unit) {
                     // Fill the frame and clip to a true circle: with the default Fit scaling a
                     // non-square avatar left the rest of the clip empty and read as a square.
                     contentScale = ContentScale.Crop,
+                    // requiredSize: BasicComponent shares the row by weight when the account text
+                    // is long (several accounts), which squeezed size(52.dp) into an ellipse.
                     modifier = Modifier
                         .padding(end = 4.dp)
-                        .size(52.dp)
+                        .requiredSize(52.dp)
                         .clip(CircleShape),
                 )
             },
