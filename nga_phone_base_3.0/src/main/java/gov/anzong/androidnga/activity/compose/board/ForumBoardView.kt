@@ -175,7 +175,7 @@ private fun ForumBoardGridItemView(
         // Miuix tiles are cards: give the icon and label room inside the card.
         val tileInset = if (miuix) 10.dp else paddingValue
         Spacer(modifier = Modifier.height(tileInset))
-        val resId = getResId(child)
+        val resId = remember(child.fid, child.stid) { getResId(child) }
         if (resId > 0) {
             Image(
                 modifier = Modifier.size(imageSize),
@@ -207,15 +207,20 @@ private fun ForumBoardGridItemView(
     }
 }
 
+/** Resource ids of bundled board icons by fid; getIdentifier is a reflective lookup per call. */
+private val boardIconIds = HashMap<Int, Int>()
+
 private fun getResId(board: BoardEntity): Int {
     if (board.stid != 0) {
         return 0
     }
 
     val fid = board.fid
-    val resName = if (fid > 0) "p$fid" else "p_" + abs(fid)
-    return ContextUtils.getResources()
-        .getIdentifier(resName, "drawable", ContextUtils.getContext().packageName)
+    return boardIconIds.getOrPut(fid) {
+        val resName = if (fid > 0) "p$fid" else "p_" + abs(fid)
+        ContextUtils.getResources()
+            .getIdentifier(resName, "drawable", ContextUtils.getContext().packageName)
+    }
 }
 
 @Composable

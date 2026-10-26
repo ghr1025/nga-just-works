@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.activity.ComponentActivity
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -76,6 +79,7 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
  * One row of a Miuix topic list. [title] keeps the NGA title styling (colour, bold, italic,
  * underline and the trailing type markers) produced by the classic TopicTitleHelper.
  */
+@Immutable
 class MiuixTopicRow(
     /** The source item; handed back to the fragment on clicks and deletes. */
     val source: Any,
@@ -90,7 +94,24 @@ class MiuixTopicRow(
     val replies: String?,
     /** Shown instead of author/last reply for reply search results. */
     val summary: String? = null,
-)
+) {
+    /** Author and last replier as shown in the meta row, built once per row. */
+    val people: String = listOfNotNull(author, lastReply?.let { "· $it" }).joinToString(" ")
+
+    /** Cached styled title per colour pair; rows are recreated when the adapter data changes. */
+    private var styledTitle: AnnotatedString? = null
+    private var styledFor: Long = 0
+
+    internal fun styledTitle(subtle: Color, accent: Color): AnnotatedString {
+        val keyValue = subtle.value.toLong() * 31 + accent.value.toLong()
+        val cached = styledTitle
+        if (cached != null && styledFor == keyValue) return cached
+        return title.toAnnotatedString(MiuixTitleColors(subtle, accent)).also {
+            styledTitle = it
+            styledFor = keyValue
+        }
+    }
+}
 
 /**
  * State that a legacy topic-list fragment pushes into its Miuix page. The fragment keeps
@@ -164,7 +185,8 @@ private fun MiuixTopicListPage(
 ) {
     val chrome = (activity as? MiuixChromeOwner)?.miuixChrome
     val menu = rememberHostOptionsMenu(activity)
-    val listState = rememberLazyListState()
+    @OptIn(ExperimentalFoundationApi::class)
+    val listState = rememberLazyListState(cacheWindow = LazyLayoutCacheWindow(ahead = 480.dp, behind = 240.dp))
     val scope = rememberCoroutineScope()
     var pendingDelete by remember { mutableStateOf<Pair<MiuixTopicRow, String>?>(null) }
     LaunchedEffect(state.scrollToTopRequest) {
@@ -271,20 +293,27 @@ private fun TopicLazyList(
         contentPadding = miuixListPadding(page.padding, extraBottom = if (callbacks.fab != null) 96.dp else 12.dp),
     ) {
         item(key = "top-gap") { Box(Modifier.padding(top = 12.dp)) }
-        itemsIndexed(rows, key = { _, row -> row.key }) { _, row ->
+        itemsIndexed(rows, key = { _, row -> row.key }, contentType = { _, _ -> "topic" }) { _, row ->
             // One card per topic, like HyperOS list cards; cards are separated by spacing.
             Card(
                 modifier = Modifier
                     .padding(horizontal = MiuixCardHorizontalMargin)
                     .padding(bottom = 10.dp),
             ) {
+                val onClick = remember(row, callbacks) { { callbacks.onClick(row) } }
+                val onLongClick: (() -> Unit)? = remember(row, callbacks) {
+                    callbacks.deleteConfirmText?.let { confirm ->
+                        {
+                            confirm(row)?.let { onRequestDelete(row, it) }
+                            Unit
+                        }
+                    }
+                }
                 TopicRowContent(
                     row = row,
                     titleSizeSp = state.titleSizeSp,
-                    onClick = { callbacks.onClick(row) },
-                    onLongClick = callbacks.deleteConfirmText?.let { confirm ->
-                        { confirm(row)?.let { onRequestDelete(row, it) } }
-                    },
+                    onClick = onClick,
+                    onLongClick = onLongClick,
                 )
             }
         }
@@ -319,7 +348,7 @@ private fun TopicRowContent(
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Text(
-            text = row.title.toAnnotatedString(MiuixTitleColors(colors.onSurfaceVariantSummary, colors.primary)),
+            text = row.styledTitle(colors.onSurfaceVariantSummary, colors.primary),
             style = MiuixTheme.textStyles.body1.copy(fontSize = titleSizeSp.sp),
             color = colors.onSurfaceContainer,
             maxLines = 3,
@@ -343,12 +372,11 @@ private fun TopicRowContent(
         ) {
             // Author and last replier share the start; the reply count is pinned to the end so
             // counts line up across rows regardless of name lengths.
-            val people = listOfNotNull(row.author, row.lastReply?.let { "· $it" }).joinToString(" ")
             if (row.author != null) {
                 Icon(NgaMiuixIcons.Person, contentDescription = null, tint = summaryColor, modifier = Modifier.size(15.dp))
             }
             MetaText(
-                text = people,
+                text = row.people,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 4.dp, end = 12.dp),

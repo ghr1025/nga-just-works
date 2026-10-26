@@ -12,22 +12,25 @@ import sp.phone.util.StringUtils
 object MiuixTopicRows {
 
     @JvmStatic
-    fun topics(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = keyed(list).map { (info, key) ->
-        MiuixTopicRow(
-            source = info,
-            key = key,
-            title = TopicTitleHelper.handleTitleFormat(info),
-            author = info.author,
-            lastReply = info.lastPoster,
-            replies = info.replies.toString(),
-        )
-    }
+    fun topics(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = keyed(list).map { (info, key) -> topic(info, key) }
 
     /** Reply search results: the reply text with its topic and time, as ReplyListAdapter shows. */
     @JvmStatic
-    fun replies(list: List<ThreadPageInfo>?): List<MiuixTopicRow> = keyed(list).mapNotNull { (info, key) ->
-        val reply = info.replyInfo ?: return@mapNotNull null
-        MiuixTopicRow(
+    fun replies(list: List<ThreadPageInfo>?): List<MiuixTopicRow> =
+        keyed(list).mapNotNull { (info, key) -> reply(info, key) }
+
+    private fun topic(info: ThreadPageInfo, key: String) = MiuixTopicRow(
+        source = info,
+        key = key,
+        title = TopicTitleHelper.handleTitleFormat(info),
+        author = info.author,
+        lastReply = info.lastPoster,
+        replies = info.replies.toString(),
+    )
+
+    private fun reply(info: ThreadPageInfo, key: String): MiuixTopicRow? {
+        val reply = info.replyInfo ?: return null
+        return MiuixTopicRow(
             source = info,
             key = key,
             title = readableReply(reply.content.orEmpty()),
@@ -39,6 +42,26 @@ object MiuixTopicRows {
                 StringUtils.timeStamp2Date2(reply.postDate),
             ).joinToString(" · "),
         )
+    }
+
+    /**
+     * Keeps the row built for each adapter item instance. Paging appends and refresh-state
+     * changes then reuse existing rows, so Compose skips unchanged cards and titles are not
+     * formatted again; only new items are converted.
+     */
+    class RowCache {
+        private var cache = java.util.IdentityHashMap<ThreadPageInfo, MiuixTopicRow>()
+
+        fun rows(items: List<ThreadPageInfo>, replyResults: Boolean): List<MiuixTopicRow> {
+            val next = java.util.IdentityHashMap<ThreadPageInfo, MiuixTopicRow>(items.size)
+            val rows = keyed(items).mapNotNull { (info, key) ->
+                val cached = cache[info]?.takeIf { it.key == key }
+                val row = cached ?: (if (replyResults) reply(info, key) else topic(info, key))
+                row?.also { next[info] = it }
+            }
+            cache = next
+            return rows
+        }
     }
 
     @JvmStatic

@@ -60,7 +60,8 @@ class MiuixTopicListBridge(
         if (!refreshing) {
             state.initialLoading = false
         }
-        publish()
+        // Rows did not change; only the paging flag may have.
+        adapter?.let { state.hasNextPage = it.hasNextPage() }
     }
 
     fun scrollToTop() = state.requestScrollToTop()
@@ -72,11 +73,18 @@ class MiuixTopicListBridge(
         publish()
     }
 
+    /** Rows already built for adapter items, so unchanged rows keep their instance. */
+    private val rowCache = MiuixTopicRows.RowCache()
+
     private fun publish() {
         val adapter = adapter ?: return
         @Suppress("UNCHECKED_CAST")
         val items = (0 until adapter.itemCount).map { adapter.getItem(it) as ThreadPageInfo }
-        state.rows = if (replyResults) MiuixTopicRows.replies(items) else MiuixTopicRows.topics(items)
+        val rows = rowCache.rows(items, replyResults)
+        // Same row instances in the same order: nothing to recompose.
+        if (rows.size != state.rows.size || rows.indices.any { rows[it] !== state.rows[it] }) {
+            state.rows = rows
+        }
         state.hasNextPage = adapter.hasNextPage()
     }
 }

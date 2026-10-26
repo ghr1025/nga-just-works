@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -127,7 +128,11 @@ fun MiuixPage(
                 WindowInsets.displayCutout.union(WindowInsets.navigationBars).only(WindowInsetsSides.Horizontal),
             ),
         ) {
-            content(MiuixPageContent(padding, scrollBehavior))
+            // padding is Scaffold's single state-backed PaddingValues; keeping one page object
+            // per (padding, behavior) avoids handing a new instance to the body on every frame
+            // of the collapsing top bar, so unrelated body content can skip recomposition.
+            val page = remember(padding, scrollBehavior) { MiuixPageContent(padding, scrollBehavior) }
+            content(page)
         }
     }
 }

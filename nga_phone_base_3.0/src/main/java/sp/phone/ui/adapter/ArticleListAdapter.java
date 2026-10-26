@@ -446,6 +446,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         View view = mLayoutInflater.inflate(R.layout.fragment_article_list_item, parent, false);
         if (mMiuixStyle) {
             MiuixReaderStyle.styleFloorViews(view);
+            MiuixReaderStyle.styleFloorCard(view);
         }
         ArticleViewHolder viewHolder = new ArticleViewHolder(view);
         ViewGroup.LayoutParams lp = viewHolder.avatarIv.getLayoutParams();
@@ -496,9 +497,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             return;
         }
 
-        if (mMiuixStyle) {
-            MiuixReaderStyle.styleFloorCard(holder.itemView);
-        } else if (!PhoneConfiguration.getInstance().useSolidColorBackground()) {
+        if (!mMiuixStyle && !PhoneConfiguration.getInstance().useSolidColorBackground()) {
             holder.itemView.setBackgroundResource(ThemeManager.getInstance().getBackgroundColor(position));
         }
 

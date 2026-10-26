@@ -55,6 +55,7 @@ object MiuixReaderStyle {
         )
     }
 
+    /** Styles a floor card once, when its view holder is created. */
     @JvmStatic
     fun styleFloorCard(item: View) {
         val density = item.resources.displayMetrics.density
