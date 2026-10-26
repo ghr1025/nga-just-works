@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
@@ -40,6 +39,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -206,9 +207,10 @@ class NavigationDrawerFragment : BaseComposeFragment() {
                 avatarColorFilter = ColorFilter.tint(Color.White)
             }
             Image(
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(width = 55.dp, height = 55.dp)
-                    .clip(shape = RoundedCornerShape(27.5.dp)),
+                    .clip(shape = CircleShape),
                 painter = avatarPainter,
                 colorFilter = avatarColorFilter,
                 contentDescription = ""

@@ -20,6 +20,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -228,10 +230,13 @@ private fun MiuixAccountCard(onAccountClick: (User?, Int) -> Unit) {
                     },
                     colorFilter = if (user == null) ColorFilter.tint(colors.onSurfaceVariantSummary) else null,
                     contentDescription = null,
+                    // Fill the frame and clip to a true circle: with the default Fit scaling a
+                    // non-square avatar left the rest of the clip empty and read as a square.
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .padding(end = 4.dp)
                         .size(52.dp)
-                        .clip(miuixShape(26.dp)),
+                        .clip(CircleShape),
                 )
             },
             endActions = {

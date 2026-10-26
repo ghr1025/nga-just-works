@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -29,7 +31,6 @@ import top.yukonga.miuix.kmp.extra.SuperRadioButton
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Delete
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.theme.miuixShape
 
 /**
  * Miuix account page: the active account is a radio choice, each row opens the profile from
@@ -91,9 +92,10 @@ private fun UserAvatar(user: User, onClick: () -> Unit) {
                 placeholder = painterResource(id = R.drawable.drawerdefaulticon),
             ),
             contentDescription = "查看资料",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(32.dp)
-                .clip(miuixShape(16.dp)),
+                .clip(CircleShape),
         )
     }
 }
