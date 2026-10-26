@@ -35,6 +35,11 @@ object MiuixReaderStyle {
         val context = item.context
         val summary = ContextCompat.getColor(context, R.color.miuix_on_surface_summary)
         val tint = ColorStateList.valueOf(summary)
+        // The classic layout gives thumb up/down a 24dp box with 3dp padding (18dp glyph) but
+        // lets reply and more wrap their 24dp drawables, so they looked a size larger. All four
+        // Miuix actions share one box and inset, so the glyphs render at the same 18dp.
+        val box = (24 * item.resources.displayMetrics.density).toInt()
+        val inset = (3 * item.resources.displayMetrics.density).toInt()
         listOf(
             R.id.iv_support to R.drawable.ic_miuix_like,
             R.id.iv_oppose to R.drawable.ic_miuix_dislike,
@@ -44,6 +49,12 @@ object MiuixReaderStyle {
             item.findViewById<ImageView>(id)?.apply {
                 setImageResource(icon)
                 imageTintList = tint
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setPadding(inset, inset, inset, inset)
+                layoutParams = layoutParams.apply {
+                    width = box
+                    height = box
+                }
             }
         }
         // Classic beige metadata (floor, time, posts/location) becomes the Miuix summary colour.
