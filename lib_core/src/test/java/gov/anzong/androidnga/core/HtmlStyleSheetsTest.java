@@ -25,6 +25,21 @@ public class HtmlStyleSheetsTest {
         assertEquals("style_miuix_dark.css", HtmlStyleSheets.select(true, true));
     }
 
+    /** Miuix attachments: the attachment frame uses the quote style (no border, card corners). */
+    @Test
+    public void miuixAttachmentFrameMatchesQuotes() throws Exception {
+        for (String name : new String[]{"style_miuix_light.css", "style_miuix_dark.css"}) {
+            String css = new String(Files.readAllBytes(new File("src/main/assets/html/" + name).toPath()),
+                    StandardCharsets.UTF_8);
+            Matcher frame = Pattern.compile("table\\.attach\\s*\\{([^}]*)\\}").matcher(css);
+            assertTrue(name + " defines table.attach", frame.find());
+            String rule = frame.group(1);
+            assertTrue(name + " frame has no border", rule.contains("border: none"));
+            assertTrue(name + " frame uses the card radius", rule.contains("border-radius: 16px"));
+            assertTrue(name + " styles the show button", css.contains("button.attach-show"));
+        }
+    }
+
     /** Miuix quotes: no border and the 16dp corner radius of the floor cards (MiuixReaderStyle). */
     @Test
     public void miuixQuotesHaveNoBorderAndCardCorners() throws Exception {

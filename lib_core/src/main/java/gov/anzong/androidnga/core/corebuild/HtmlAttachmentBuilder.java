@@ -51,7 +51,7 @@ public class HtmlAttachmentBuilder implements IHtmlBuild {
             attachUrlThumb = attachUrlThumb + ".thumb.jpg";
         }
         ret.append("<tr><td>")
-                .append(String.format("<button id='show%s' type='button' onclick='displayImg(%s,\"%s\")'>点击显示附件</button>", indexStr, indexStr, attachUrlThumb))
+                .append(String.format("<button id='show%s' class='attach-show' type='button' onclick='displayImg(%s,\"%s\")'>点击显示附件</button>", indexStr, indexStr, attachUrlThumb))
                 .append(String.format("<a href=%s>", attachUrl))
                 .append(String.format("<img style='max-width:100%%'; id='img%s'/>", indexStr))
                 .append("</a></td></tr>");
@@ -68,11 +68,17 @@ public class HtmlAttachmentBuilder implements IHtmlBuild {
             return "";
         }
         StringBuilder ret = new StringBuilder();
-        ret.append("<br/><br/>附件<hr/><br/>");
-        if (htmlData.isDarkMode()) {
-            ret.append("<table style='border:1px solid #b9986e;padding:10px;color:#6b2d25;font-size:10'>");
+        if (htmlData.isMiuixStyle()) {
+            // Miuix: a small summary-style label and the frame of a quote block (style_miuix_*.css).
+            ret.append("<div class='attach-title'>附件</div>");
+            ret.append("<table class='attach'>");
         } else {
-            ret.append("<table style='border:1px solid #b9986e;padding:10px;color:#6b2d25;font-size:10'>");
+            ret.append("<br/><br/>附件<hr/><br/>");
+            if (htmlData.isDarkMode()) {
+                ret.append("<table style='border:1px solid #b9986e;padding:10px;color:#6b2d25;font-size:10'>");
+            } else {
+                ret.append("<table style='border:1px solid #b9986e;padding:10px;color:#6b2d25;font-size:10'>");
+            }
         }
         ret.append("<tbody>");
         int attachmentCount = 0;
