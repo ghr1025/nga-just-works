@@ -26,7 +26,7 @@
             android:layout_width="32dip"
             android:layout_height="32dip"
             android:layout_marginEnd="8dip"
-            android:layout_marginRight="8dip"
+            android:importantForAccessibility="no"
             android:scaleType="fitCenter"
             android:src="@null"/>
 

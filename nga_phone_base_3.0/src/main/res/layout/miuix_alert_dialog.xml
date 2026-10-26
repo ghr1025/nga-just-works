@@ -24,6 +24,7 @@
 
         <ImageView
               android:id="@+id/scrollIndicatorUp"
+              android:importantForAccessibility="no"
               android:layout_width="match_parent"
               android:layout_height="1dp"
               android:layout_gravity="top"
@@ -68,6 +69,7 @@
 
         <ImageView
               android:id="@+id/scrollIndicatorDown"
+              android:importantForAccessibility="no"
               android:layout_width="match_parent"
               android:layout_height="1dp"
               android:layout_gravity="bottom"
