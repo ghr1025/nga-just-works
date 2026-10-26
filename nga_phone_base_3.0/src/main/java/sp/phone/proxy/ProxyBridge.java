@@ -44,16 +44,7 @@ public final class ProxyBridge {
                     result = "未知错误,请重试";
                 if (result.startsWith("操作成功"))
                     result = "操作成功";
-                if (toast != null) {
-                    toast.setText(result);
-                    toast.setDuration(Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    toast = Toast.makeText(context,
-                            result,
-                            Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+                gov.anzong.androidnga.base.util.ToastUtils.show(result);
             }
 
             @Override

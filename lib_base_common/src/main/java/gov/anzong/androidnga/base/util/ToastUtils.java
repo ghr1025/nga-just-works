@@ -12,6 +12,38 @@ import es.dmoral.toasty.Toasty;
  */
 public class ToastUtils {
 
+    /**
+     * Replaces the classic Toasty toasts while it returns true (the Miuix appearance). Set by the
+     * application, since this module sits below the UI modules that know the appearance.
+     */
+    public interface Override {
+        /** @return true if the message was shown, false to fall back to the classic toast */
+        boolean show(String text);
+    }
+
+    private static volatile Override sOverride;
+
+    public static void setOverride(Override override) {
+        sOverride = override;
+    }
+
+    /** Shows the message with the override on the main thread; false if there is none. */
+    private static boolean overridden(String text) {
+        Override override = sOverride;
+        if (override == null) {
+            return false;
+        }
+        if (!ThreadUtils.isMainThread()) {
+            ThreadUtils.runOnMainThread(() -> {
+                if (!override.show(text)) {
+                    Toast.makeText(ContextUtils.getContext(), text, Toast.LENGTH_SHORT).show();
+                }
+            });
+            return true;
+        }
+        return override.show(text);
+    }
+
     @Deprecated
     public static void showShortToast(String text) {
         info(text);
@@ -28,6 +60,9 @@ public class ToastUtils {
     }
 
     public static void show(String text) {
+        if (overridden(text)) {
+            return;
+        }
         ThreadUtils.runOnMainThread(() -> Toast.makeText(ContextUtils.getContext(), text, Toast.LENGTH_SHORT).show());
     }
 
@@ -49,6 +84,9 @@ public class ToastUtils {
     }
 
     public static void success(String text) {
+        if (overridden(text)) {
+            return;
+        }
         if (!ThreadUtils.isMainThread()) {
             ThreadUtils.runOnMainThread(() -> ToastUtils.success(text));
         } else {
@@ -59,6 +97,9 @@ public class ToastUtils {
     }
 
     public static void error(String text) {
+        if (overridden(text)) {
+            return;
+        }
         if (!ThreadUtils.isMainThread()) {
             ThreadUtils.runOnMainThread(() -> Toasty.error(ContextUtils.getContext(), text).show());
         } else {
@@ -67,6 +108,9 @@ public class ToastUtils {
     }
 
     public static void info(String text) {
+        if (overridden(text)) {
+            return;
+        }
         if (!ThreadUtils.isMainThread()) {
             ThreadUtils.runOnMainThread(() -> ToastUtils.info(text));
         } else {
@@ -76,6 +120,9 @@ public class ToastUtils {
     }
 
     public static void warn(String text) {
+        if (overridden(text)) {
+            return;
+        }
         Toasty.warning(ContextUtils.getContext(), text).show();
     }
 

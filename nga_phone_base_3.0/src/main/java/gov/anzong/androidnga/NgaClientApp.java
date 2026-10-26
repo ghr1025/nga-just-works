@@ -3,6 +3,9 @@ package gov.anzong.androidnga;
 import android.app.Application;
 import com.justwen.androidnga.ui.compose.miuix.MiuixMenuIcons;
 import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
+import gov.anzong.androidnga.base.util.ToastUtils;
+import com.justwen.androidnga.ui.compose.miuix.NgaUiStyle;
+import com.justwen.androidnga.ui.compose.miuix.MiuixToast;
 import android.os.Process;
 import android.webkit.WebView;
 
@@ -63,6 +66,14 @@ public class NgaClientApp extends Application {
         registerMiuixIcons();
         MiuixTransitions.register(R.anim.miuix_open_enter, R.anim.miuix_open_exit,
                 R.anim.miuix_close_enter, R.anim.miuix_close_exit);
+        // Miuix appearance: every ToastUtils message (info/success/error/warn/show) as a Miuix toast.
+        ToastUtils.setOverride(text -> {
+            if (!NgaUiStyle.isMiuix()) {
+                return false;
+            }
+            MiuixToast.show(this, text, false);
+            return true;
+        });
         checkIn();
         super.onCreate();
 
