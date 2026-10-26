@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.justwen.androidnga.cloud.CloudServerManager;
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeOwner;
 import com.justwen.androidnga.ui.compose.miuix.MiuixChromeState;
+import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
 
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.base.common.SwipeBackHelper;
@@ -162,6 +163,21 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         container.setId(containerId);
         container.setBackgroundColor(ContextUtils.getColor(R.color.miuix_surface));
         setContentView(container);
+    }
+
+    /**
+     * Sets [layoutId] as the content. On Miuix pages the layout's toolbar area is replaced by a
+     * Miuix top app bar and the view with [contentId] becomes the page body; every view of the
+     * layout stays inflated so findViewById and view bindings work unchanged.
+     */
+    protected void setClassicOrMiuixContentView(int layoutId, int contentId) {
+        View classic = getLayoutInflater().inflate(layoutId, null);
+        if (!isMiuixPage()) {
+            setContentView(classic);
+            return;
+        }
+        View content = classic.findViewById(contentId);
+        setContentView(MiuixViewShellKt.miuixViewShell(this, classic, content != null ? content : classic, false, null));
     }
 
     private int pageBackgroundColor() {

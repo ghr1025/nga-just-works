@@ -27,10 +27,13 @@ public class LauncherSubActivity extends BaseActivity {
         String fragmentStr = intent.getStringExtra("fragment");
         mFragmentClass = resolveFragmentClass(fragmentStr);
         super.onCreate(savedInstanceState);
-        if (isMiuixPage()) {
+        if (isMiuixPage() && isFullMiuixFragment()) {
+            // The fragment draws its whole Miuix page, top app bar included.
             setMiuixContentView(R.id.main_content);
         } else {
-            setContentView(R.layout.activity_toolbar_template);
+            // Classic fragments get the Miuix top app bar above their content in the Miuix
+            // appearance, and the toolbar layout in the classic one.
+            setClassicOrMiuixContentView(R.layout.activity_toolbar_template, R.id.main_content);
             setupToolbar();
         }
         getOnBackPressedDispatcher().addCallback(this, new FragmentBackCallback(
@@ -54,9 +57,14 @@ public class LauncherSubActivity extends BaseActivity {
         }
     }
 
+    /** Every hosted page uses Miuix chrome in the Miuix appearance. */
     @Override
     protected boolean isMiuixPage() {
-        return isMiuixStyle() && mFragmentClass != null && MiuixFragment.class.isAssignableFrom(mFragmentClass);
+        return isMiuixStyle();
+    }
+
+    private boolean isFullMiuixFragment() {
+        return mFragmentClass != null && MiuixFragment.class.isAssignableFrom(mFragmentClass);
     }
 
     private void commitFragment(String fragmentStr) {

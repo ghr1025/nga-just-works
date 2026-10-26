@@ -19,7 +19,7 @@ public class RecentNotificationActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_toolbar_template);
+        setClassicOrMiuixContentView(R.layout.activity_toolbar_template, R.id.main_content);
         setupToolbar();
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.main_content);
@@ -31,4 +31,8 @@ public class RecentNotificationActivity extends BaseActivity {
         setTitle("我的被喷");
     }
 
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
+    }
 }

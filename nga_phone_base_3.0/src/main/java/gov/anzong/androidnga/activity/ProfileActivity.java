@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 
 import butterknife.BindView;
+import com.justwen.androidnga.ui.compose.miuix.MiuixViewShellKt;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import gov.anzong.androidnga.R;
@@ -142,7 +144,15 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             }
         }
 
-        setContentView(R.layout.activity_user_profile);
+        View classic = getLayoutInflater().inflate(R.layout.activity_user_profile, null);
+        if (isMiuixPage()) {
+            // Miuix top app bar above the classic profile; the avatar header stays as content
+            // and its own toolbar row is hidden.
+            classic.findViewById(R.id.toolbar).setVisibility(View.GONE);
+            setContentView(MiuixViewShellKt.miuixViewShell(this, classic, classic, false, null));
+        } else {
+            setContentView(classic);
+        }
         ButterKnife.bind(this);
         setupActionBar();
         refresh();
@@ -167,6 +177,9 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
     private void loadBasicProfile(ProfileData profileInfo) {
         mToolbarLayout.setTitle(profileInfo.getUserName());
+        if (isMiuixPage()) {
+            setTitle(profileInfo.getUserName());
+        }
         mUidTv.setText(String.format("用户ID : %s", profileInfo.getUid()));
         mPostCountTv.setText(profileInfo.getPostCount());
         mRegisterTimeTv.setText(profileInfo.getRegisterDate());
@@ -569,5 +582,10 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
             loadProfileInfo(data);
         }
         invalidateOptionsMenu();
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
     }
 }

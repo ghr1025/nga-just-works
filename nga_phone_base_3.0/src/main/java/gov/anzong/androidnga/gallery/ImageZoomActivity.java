@@ -55,7 +55,7 @@ public class ImageZoomActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_zoom);
+        setClassicOrMiuixContentView(R.layout.activity_image_zoom, R.id.gallery_fl);
         receiveIntent();
         initBottomView();
         initGallery();
@@ -65,6 +65,11 @@ public class ImageZoomActivity extends BaseActivity {
 
     private void initActionBar() {
         setupToolbar();
+    }
+
+    @Override
+    protected boolean isMiuixPage() {
+        return isMiuixStyle();
     }
 
     private void initGallery() {

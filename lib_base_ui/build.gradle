@@ -42,6 +42,8 @@ dependencies {
     implementation "com.google.android.material:material:$androidx_material_version"
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation project(':lib_base_service_api')
+    // Miuix chrome for template-hosted pages in the Miuix appearance.
+    implementation project(':lib_base_ui_compose')
     implementation "com.alibaba:arouter-api:$arouter_version"
     kapt "com.alibaba:arouter-compiler:$arouter_version"
 
