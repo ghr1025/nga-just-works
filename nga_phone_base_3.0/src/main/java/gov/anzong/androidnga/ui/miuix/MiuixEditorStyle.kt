@@ -1,6 +1,7 @@
 package gov.anzong.androidnga.ui.miuix
 
 import android.content.res.ColorStateList
+import android.os.Build
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
@@ -54,8 +55,18 @@ object MiuixEditorStyle {
         // The tool bar strip is the LinearLayout holding the four ImageButtons.
         val bar = root.findViewById<ImageButton>(R.id.btn_category)?.parent as? View ?: return
         bar.setBackgroundColor(surface)
-        listOf(R.id.btn_category, R.id.btn_text, R.id.btn_attachment, R.id.btn_emoticon).forEach { id ->
-            root.findViewById<ImageButton>(id)?.imageTintList = ColorStateList.valueOf(summary)
+        // Miuix line icons: MiuixIcons ListView / Image converted, text format and emoticon drawn on
+        // the same 24dp outline grid; summary-tinted like the reader's floor action icons.
+        listOf(
+            R.id.btn_category to R.drawable.ic_miuix_list,
+            R.id.btn_text to R.drawable.ic_miuix_text_format,
+            R.id.btn_attachment to R.drawable.ic_miuix_image,
+            R.id.btn_emoticon to R.drawable.ic_miuix_emoticon,
+        ).forEach { (id, icon) ->
+            root.findViewById<ImageButton>(id)?.apply {
+                setImageResource(icon)
+                imageTintList = ColorStateList.valueOf(summary)
+            }
         }
         val panel = root.findViewById<View>(R.id.control_panel) ?: return
         // The emoticon, formatting and category panels are ViewStubs inflated on first use;
@@ -63,10 +74,18 @@ object MiuixEditorStyle {
         listOf(R.id.bottom_emoticon_stub, R.id.bottom_text_stub, R.id.bottom_category_stub).forEach { id ->
             root.findViewById<ViewStub>(id)?.setOnInflateListener { _, inflated -> stylePanel(inflated) }
         }
+        // On Android 15+ PostActivity lifts the page by the keyboard height itself
+        // (BaseActivity.compatActivityAdjustResize), so the IME inset is added here only below
+        // that; adding it on 15+ as well put the bar a second keyboard height above the keyboard.
+        val imeHandledByPage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
         val basePadding = panel.paddingBottom
         ViewCompat.setOnApplyWindowInsetsListener(panel) { view, insets ->
-            val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars() or WindowInsetsCompat.Type.ime())
-            view.updatePadding(bottom = basePadding + nav.bottom)
+            val types = if (imeHandledByPage) {
+                WindowInsetsCompat.Type.navigationBars()
+            } else {
+                WindowInsetsCompat.Type.navigationBars() or WindowInsetsCompat.Type.ime()
+            }
+            view.updatePadding(bottom = basePadding + insets.getInsets(types).bottom)
             insets
         }
         panel.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
