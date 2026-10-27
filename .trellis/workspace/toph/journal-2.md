@@ -97,3 +97,25 @@ Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground
 ### Status
 
 [OK] **Completed**
+
+
+## Session 79: 修复列表页页码泄漏为帖子页坐标 (#14)
+<!-- trellis-session: v=2 fp=13818c6bc580ace5 -->
+
+**Date**: 2026-10-27
+**Task**: 修复列表页页码泄漏为帖子页坐标 (#14)
+**Branch**: `main`
+
+### Summary
+
+普通读取采用响应 __PAGE/__R__ROWS_PAGE 作为有效页与页大小，列表入口固定第 1 页；越界请求不再折叠为单页。无 __PAGE 行为不变，旧版缓存回放保留存储页。全量 Debug 539 例与 lint 通过；机型手动确认未执行。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b0fdf46c` | fix: 列表页页码不再泄漏为帖子页坐标 |
+
+### Status
+
+[OK] **Completed**
