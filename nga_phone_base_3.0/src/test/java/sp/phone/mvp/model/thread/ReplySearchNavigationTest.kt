@@ -38,7 +38,7 @@ class ReplySearchNavigationTest {
         assertEquals("42", info.replyInfo.authorId)
         val param = ArticleNavigation.fromSearchResult(info, replyRequest())
         assertEquals(ArticleQuery(100001, 50120, 42, 1), ArticleQuery.from(param))
-        assertEquals(3, param.page)
+        assertEquals(1, param.page)
         assertEquals("topic & title", param.title)
         assertEquals(JSON.toJSONString(info), param.topicInfo)
         val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
@@ -61,7 +61,16 @@ class ReplySearchNavigationTest {
             ArticleQuery.from(ArticleNavigation.fromSearchResult(info, replyRequest())))
         val full = ArticleNavigation.fromSearchResult(info, TopicListParam())
         assertEquals(ArticleQuery(100001, 0, 0, 0), ArticleQuery.from(full))
-        assertEquals(3, full.page)
+        assertEquals(1, full.page)
+    }
+
+    @Test fun listPageNeverBecomesTheThreadPage() {
+        val info = searchResult()
+        // The list coordinate stays on the row for list operations such as favorite deletion.
+        assertEquals(3, info.page)
+        assertEquals(1, ArticleNavigation.fromSearchResult(info, TopicListParam()).page)
+        assertEquals(1, ArticleNavigation.fromSearchResult(info, replyRequest()).page)
+        assertEquals(3, info.page)
     }
 
     @Test fun absentOrUnparseableReplyAuthorNeverBecomesTheTopicAuthor() {

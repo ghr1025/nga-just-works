@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Targeted test filter plus the single repository Debug test/lint gate used for acceptance"}
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Check page/floor/index coordinate separation and reported-size handling in the ordinary reader"}
+{"file": ".trellis/spec/backend/thread-page-cache-contract.md", "reason": "Check cache envelope invariants and legacy replay behavior after the paging change"}
+{"file": ".trellis/spec/backend/ordinary-read-wire-contract.md", "reason": "Check that ThreadData mapping changed without touching the core decoder or App parser"}
+{"file": ".trellis/tasks/archive/2026-10/10-03-floor-favorite-restore/research/findings.md", "reason": "Expected failure chain and why the old pager hid the bug; compare against the delivered behavior"}

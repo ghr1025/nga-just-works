@@ -107,6 +107,19 @@ actions. It is display metadata, not a fabricated server response schema.
 - Server page, global floor and adapter index are different coordinates.
   Preserve row order and original floor/PID. Short pages and floor gaps do not
   independently invalidate readable rows.
+- A list row's `ThreadPageInfo.page` is a list coordinate, never a thread page.
+  `ArticleNavigation.fromSearchResult` opens page 1; do not reuse the list page
+  as a read request or as reader page authority. Keep the list field itself for
+  list semantics such as favorite deletion. Explicit coordinates from URLs,
+  history, cache openers and `显示全部` are separate inputs and stay intact.
+- Ordinary reads take server coordinates from `ThreadData.__PAGE` /
+  `__R__ROWS_PAGE` (positive values only), never from `ThreadPageInfo.page`. A
+  reported page is the effective page: total pages are at least that page, so a
+  request beyond the last page lands on the rendered page instead of nulling
+  `totalPages` and collapsing the pager. Floor estimation stays gated by the
+  loaded row window. Without a reported page, keep the previous requested page,
+  20-row fallback, `badBounds` → `UNKNOWN_WINDOW` behavior exactly; a size
+  reported without a page does not change it.
 - Positive reported page size is used as supplied. Missing size remains
   unknown; do not infer it from result length or replace it with 20 for App.
   Reported total pages may support page navigation without floor arithmetic.
@@ -280,6 +293,9 @@ actions. It is display metadata, not a fabricated server response schema.
 | Author page with floors 3, 85, 144 | Preserve floors; use filtered page coordinates, not modulo scrolling |
 | App page size 10/30/40 or a short final page | Preserve all rows and reported page size; no artificial 20-row regrouping |
 | Missing size but valid total pages | Read/page navigation available; unsupported floor arithmetic unavailable |
+| List row on forum/search/favorite page 3 clicked | Reader opens page 1 with full tabs; row's list page is not used as a read coordinate |
+| Ordinary read reports `__PAGE=3` with size 10; request page 9 | Effective 3, total at least 3, pager not collapsed; floor arithmetic only if rows match the window |
+| Ordinary response has size but no `__PAGE` | Requested page and 20-row window unchanged; reported size not adopted |
 | Unknown optional sidecar or code with valid data | Preserve source/raw; no fabricated interpretation or blanket veto |
 | Ordinary page 7/size20 switches to App size10 | Keep floor120 anchor; at most one page13 alignment read, then verify actual row |
 | Previous-generation completion or delayed UI callback | No overwrite of current body/title/count/READY/loading |
@@ -330,7 +346,13 @@ Use synthetic data and fake transport; never send NGA traffic:
   response-local image prefixes and query validation. Cover consumed-source
   types and incomplete-cache prevention in scoped reads without changing the
   legacy/default-off acceptance path. Include damaged known nested comments,
-  preserved parent/child identities and incomplete display projection.
+  preserved parent/child identities and incomplete display projection. Cover
+  the reported-coordinate matrix: reported page with and without a size, an
+  out-of-range request keeping the reported page and a non-null total, absent
+  `__PAGE` preserving the requested/20-row/unknown-window behavior, and a size
+  reported without a page leaving the 20-row window intact.
+  `ReplySearchNavigationTest` owns the entry coordinate: a list row on page N
+  yields `page == 1` while `ThreadPageInfo.page` keeps N.
 - `ArticleReaderSessionTest`: exact anchors and bounded alignment, old-key
   rejection, background/source handoff, account/settings invalidation,
   count-before-Cookie retries, first-page show-all navigation, unresolved and

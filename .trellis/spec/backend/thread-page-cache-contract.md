@@ -112,6 +112,11 @@ from JSON serialization and deserialization.
   `AppArticleParser`. The compatibility setting is irrelevant to local replay.
   Validate the parsed query/tid/effective page, source, size and page basis
   against the stored envelope; new pages must also be complete and nonempty.
+- A legacy raw file is keyed by its stored page, which stays the page authority
+  over any `__PAGE` in the raw response: replay recomputes paging with the
+  reported page suppressed (requested page = stored page, 20-row window) and
+  still requires `effectivePage == stored.page`. Owned envelopes keep the
+  reported-page basis they were written with and validate it on replay.
 - Existing but malformed, unknown-version, wrong-owner or wrong-layout owned
   pages fail locally. Do not try a different parser, another cache layout or
   the network to disguise the failure.

@@ -67,17 +67,39 @@ data class ArticlePagingInfo(
     fun sameLayout(other: ArticlePagingInfo) = source == other.source && pageSize == other.pageSize
 
     companion object {
-        @JvmStatic fun normal(query: ArticleQuery, page: Int, data: ThreadData): ArticlePagingInfo {
+        /**
+         * A response-reported page is the page the server actually rendered; a request beyond the
+         * thread's last page must land there instead of collapsing the reader into one tab.
+         */
+        @JvmStatic @JvmOverloads
+        fun normal(query: ArticleQuery, page: Int, data: ThreadData,
+                   reportedPage: Int? = data.__PAGE.takeIf { it > 0 }): ArticlePagingInfo {
             val rows = data.rowList.orEmpty()
             val tid = data.threadInfo?.tid?.takeIf { it > 0 }
                 ?: rows.firstOrNull { it.tid > 0 }?.tid ?: query.tid
-            val total = if (query.kind == ArticleQueryKind.LOOKUP) null else pages(data.__ROWS, 20)
-            val badBounds = total != null && page > total
-            return ArticlePagingInfo(query, ArticleSource.READ_PHP, tid, page, page, 20, if (badBounds) null else total,
+            // The reported row count only applies together with a reported page; without one the
+            // historical requested-page plus 20-row window is preserved exactly.
+            val size = (if (reportedPage != null) data.__R__ROWS_PAGE.takeIf { it > 0 } else null) ?: 20
+            val effective = reportedPage ?: page
+            val computed = if (query.kind == ArticleQueryKind.LOOKUP) null else pages(data.__ROWS, size)
+            // Without a reported page the previous requested-page window still decides; a reported
+            // page is authoritative and only reduces capability when the row count disagrees.
+            val badBounds = reportedPage == null && computed != null && page > computed
+            val total = when {
+                query.kind == ArticleQueryKind.LOOKUP || badBounds -> null
+                else -> maxOf(computed ?: 0, reportedPage ?: 0).takeIf { it > 0 }
+            }
+            return ArticlePagingInfo(query, ArticleSource.READ_PHP, tid, page, effective, size, total,
                 data.__ROWS.takeIf { it > 0 },
-                when { query.kind == ArticleQueryKind.LOOKUP -> ArticlePageBasis.LOOKUP_WINDOW
-                    badBounds -> ArticlePageBasis.UNKNOWN_WINDOW; else -> ArticlePageBasis.REQUESTED },
-                !badBounds && floorWindow(query, page, 20, rows), invalidMetadata = badBounds)
+                when {
+                    query.kind == ArticleQueryKind.LOOKUP -> ArticlePageBasis.LOOKUP_WINDOW
+                    reportedPage != null -> ArticlePageBasis.REPORTED
+                    badBounds -> ArticlePageBasis.UNKNOWN_WINDOW
+                    else -> ArticlePageBasis.REQUESTED
+                },
+                !badBounds && floorWindow(query, effective, size, rows),
+                invalidMetadata = badBounds || (reportedPage != null && computed != null && computed < reportedPage),
+                reportedCurrentPage = reportedPage)
         }
 
         internal fun pages(rows: Int?, size: Int?): Int? =
@@ -122,7 +144,8 @@ object ArticleNavigation {
     @JvmStatic fun fromSearchResult(info: ThreadPageInfo, request: TopicListParam): ArticleListParam =
         ArticleListParam().apply {
             tid = info.tid
-            page = info.page
+            // The row's page is a list coordinate, never a thread page; a new reader opens page 1.
+            page = 1
             title = StringUtils.unEscapeHtml(info.subject)
             if (request.searchPost != 0) {
                 pid = info.pid

@@ -235,4 +235,27 @@ class ArticleCacheStoreTest {
         store.write(ArticleCacheWrite(legacy, 7, topic, normalRaw, null)) { null }
         assertEquals(normalRaw, replay.parse(store.read(legacy, 7, null)).rawData)
     }
+
+    @Test fun legacyRawReplayKeepsItsStoredPageOverTheReportedPage() {
+        val renderer = ArticleRowRenderer { _, _ -> }
+        val blacklist = ArticleBlacklist { false }
+        val replay = ArticleCacheReplay { source, raw, query, page ->
+            when (source) {
+                ArticleSource.READ_PHP -> NormalArticleParser(renderer, blacklist).parse(raw, query, page)
+                null -> sp.phone.mvp.model.convert.ArticleConvertFactory.getArticleInfo(raw, renderer, blacklist)
+                ArticleSource.APP_API -> AppArticleParser(renderer, blacklist).parse(raw, query, page)
+            }
+        }
+        // The raw response rendered page 2, but the pre-existing file is keyed by page 7.
+        val raw = "\uFEFF" + """{"data":{"__ROWS":160,"__PAGE":2,"__R__ROWS_PAGE":20,"__R__ROWS":1,"__T":{"tid":$tid,"subject":"topic"},"__R":{"0":{"tid":$tid,"pid":50120,"lou":120,"content":"正文"}}}}"""
+        val legacy = ArticleCacheEntry(tid, null, null)
+        val store = ArticleCacheStore(temporary.root)
+        store.write(ArticleCacheWrite(legacy, 7, topic, raw, null)) { null }
+        val restored = replay.parse(store.read(legacy, 7, null))
+        assertEquals(raw, restored.rawData)
+        assertEquals("正文", restored.rowList.single().content)
+        assertEquals(7, restored.pagingInfo.requestedPage)
+        assertEquals(7, restored.pagingInfo.effectivePage)
+        assertEquals(ArticlePageBasis.REQUESTED, restored.pagingInfo.pageBasis)
+    }
 }

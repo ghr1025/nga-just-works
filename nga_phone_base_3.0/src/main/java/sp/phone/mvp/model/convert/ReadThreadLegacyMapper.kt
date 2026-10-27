@@ -32,6 +32,9 @@ internal object ReadThreadLegacyMapper {
             threadInfo = wire.topic.value?.let(::topic)
             rowList = rows
             set__ROWS(wire.totalRowCount.value!!)
+            // Keep the rendered page coordinates separate from list-page semantics on ThreadPageInfo.
+            set__PAGE(wire.page.value ?: 0)
+            set__R__ROWS_PAGE(wire.rowsPerPage.value ?: 0)
             rowNum = rows.size
             if (strict) isContentComplete = complete(rows)
         }

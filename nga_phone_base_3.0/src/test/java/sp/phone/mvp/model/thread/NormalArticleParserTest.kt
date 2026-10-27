@@ -22,6 +22,110 @@ class NormalArticleParserTest {
                        "comment":{"0":{"tid":100001,"pid":50121,"authorid":43,"content":"comment source"}}}}}}
     """)
 
+    /** A read response that omits either reported page field, as an incomplete server response can. */
+    private fun readRaw(rows: Int, page: Int?, size: Int?, lou: Int): String {
+        val header = buildString {
+            append("\"__ROWS\":").append(rows)
+            if (page != null) append(",\"__PAGE\":").append(page)
+            if (size != null) append(",\"__R__ROWS_PAGE\":").append(size)
+        }
+        return """{"data":{$header,"__R__ROWS":1,"__T":{"tid":100001,"subject":"topic"},
+            "__R":{"0":{"tid":100001,"pid":50120,"lou":$lou,"content":"正文"}}}}"""
+    }
+
+    @Test fun reportedPageAndPageSizeBecomeTheReaderCoordinates() {
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        val raw = readRaw(25, 3, 10, 24)
+        val data = parser.parse(raw, query, 3)
+        assertEquals(3, data.__PAGE)
+        assertEquals(10, data.__R__ROWS_PAGE)
+        assertEquals(raw, data.rawData)
+        val paging = data.pagingInfo
+        assertEquals(3, paging.requestedPage)
+        assertEquals(3, paging.effectivePage)
+        assertEquals(10, paging.pageSize)
+        assertEquals(3, paging.totalPages)
+        assertEquals(25, paging.totalRows)
+        assertEquals(ArticlePageBasis.REPORTED, paging.pageBasis)
+        assertEquals(3, paging.reportedCurrentPage)
+        assertFalse(paging.invalidMetadata)
+        assertTrue(paging.canEstimateFloorPage)
+        assertEquals(3, paging.candidatePage(20))
+        assertEquals(1, paging.candidatePage(9))
+
+        val legacy = ArticleConvertFactory.getArticleInfo(raw, ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        assertNotNull(legacy)
+        assertEquals(3, legacy!!.__PAGE)
+        assertEquals(10, legacy.__R__ROWS_PAGE)
+    }
+
+    @Test fun outOfRangeRequestAdoptsTheReportedPageInsteadOfCollapsingThePager() {
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        val paging = parser.parse(readRaw(25, 3, 10, 24), query, 9).pagingInfo
+        assertEquals(9, paging.requestedPage)
+        assertEquals(3, paging.effectivePage)
+        assertEquals(3, paging.totalPages)
+        assertEquals(ArticlePageBasis.REPORTED, paging.pageBasis)
+        assertFalse(paging.invalidMetadata)
+        assertTrue(paging.canEstimateFloorPage)
+        assertNull(paging.candidatePage(35))
+    }
+
+    @Test fun reportedPageWithoutSizeKeepsTheTwentyRowFallback() {
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        val paging = parser.parse(readRaw(25, 3, null, 24), query, 9).pagingInfo
+        assertEquals(20, paging.pageSize)
+        assertEquals(3, paging.effectivePage)
+        // The reported page is authoritative, so the local estimate of two pages cannot null it.
+        assertEquals(3, paging.totalPages)
+        assertEquals(ArticlePageBasis.REPORTED, paging.pageBasis)
+        assertTrue(paging.invalidMetadata)
+        // Floor 24 is outside the computed page-3 window 40..59, so no floor arithmetic is allowed.
+        assertFalse(paging.canEstimateFloorPage)
+    }
+
+    @Test fun absentReportedPageKeepsTheRequestedPageAndTwentyRowWindow() {
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        val raw = readRaw(160, null, null, 120)
+        val data = parser.parse(raw, query, 7)
+        assertEquals(0, data.__PAGE)
+        assertEquals(0, data.__R__ROWS_PAGE)
+        val paging = data.pagingInfo
+        assertEquals(7, paging.effectivePage)
+        assertEquals(20, paging.pageSize)
+        assertEquals(8, paging.totalPages)
+        assertEquals(ArticlePageBasis.REQUESTED, paging.pageBasis)
+        assertNull(paging.reportedCurrentPage)
+        assertFalse(paging.invalidMetadata)
+        assertTrue(paging.canEstimateFloorPage)
+    }
+
+    @Test fun absentReportedPageKeepsTheTwentyRowWindowEvenWhenARowCountArrives() {
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        // The raw fact is retained, but without a reported page it cannot change the old window.
+        val data = parser.parse(readRaw(160, null, 30, 120), query, 7)
+        assertEquals(0, data.__PAGE)
+        assertEquals(30, data.__R__ROWS_PAGE)
+        val paging = data.pagingInfo
+        assertEquals(7, paging.effectivePage)
+        assertEquals(20, paging.pageSize)
+        assertEquals(8, paging.totalPages)
+        assertEquals(ArticlePageBasis.REQUESTED, paging.pageBasis)
+        // Floor 120 sits in the 20-row page-7 window (120..139), not a 30-row one.
+        assertTrue(paging.canEstimateFloorPage)
+    }
+
+    @Test fun absentReportedPageKeepsTheUnknownWindowForOutOfRangeRequests() {
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        val paging = parser.parse(readRaw(160, null, null, 120), query, 9).pagingInfo
+        assertEquals(9, paging.effectivePage)
+        assertNull(paging.totalPages)
+        assertEquals(ArticlePageBasis.UNKNOWN_WINDOW, paging.pageBasis)
+        assertTrue(paging.invalidMetadata)
+        assertFalse(paging.canEstimateFloorPage)
+        assertNull(paging.reportedCurrentPage)
+    }
+
     @Test fun topicTitleReachesMainPostRendererInLegacyAndScopedReads() {
         for (scoped in listOf(false, true)) {
             val root = fixture()

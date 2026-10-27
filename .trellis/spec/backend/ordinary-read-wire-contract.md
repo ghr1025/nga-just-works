@@ -86,6 +86,13 @@ and UNREADABLE_VALUE for the app's existing error/null branches.
   the facade's public signatures and the separate App parser path.
   ReadThreadLegacyMapper maps typed wire values back into existing Java models;
   it does not rewrite NormalArticleParser or AppArticleParser policies.
+- The mapper copies `ReadThreadWire.page` into `ThreadData.__PAGE` and
+  `rowsPerPage` into `ThreadData.__R__ROWS_PAGE` (0 = absent/invalid) next to
+  `__ROWS`. These are response-derived reader coordinates; the four accessors
+  carry `@JSONField(serialize=false, deserialize=false)` so the legacy
+  serialized bean shape and frozen parity baselines stay unchanged. Do not store
+  them on `ThreadPageInfo.page`, whose list-row meaning is separate, and do not
+  derive them in core or in the App parser.
   Superseded private facade decoders are retired after parity verification;
   retain the shared render/attachment/author helpers and public facade entrypoints.
 - Successful facade results and render/lookup order must match frozen baseline
@@ -106,6 +113,9 @@ and UNREADABLE_VALUE for the app's existing error/null branches.
 | Non-object topic vs failed object-to-bean conversion | Outer-null for original cast failure; optional null only for bean conversion |
 | Missing user/group or row fallback metadata | Preserve row fallback and original precedence |
 | Structured/absent/scalar body | Preserve distinct source validity for the app |
+| Response reports `__PAGE`/`__R__ROWS_PAGE` | Copy both into `ThreadData`; paging uses only positive values |
+| Response reports size without `__PAGE` | `__R__ROWS_PAGE` is retained as a fact but must not change paging (20-row window) |
+| Frozen bean/baseline serialization | New accessors stay out of the serialized shape; baselines unchanged |
 | Two parses with same UID | Independent user state; no cross-call cache |
 
 ## 5. Good/Base/Bad Cases
@@ -126,6 +136,11 @@ shared decoder. During facade wiring compare existing ordinary/legacy/App
 reader suites, source capabilities, precise errors, identity/paging/cache,
 blacklist/render ordering and U1/U2 regressions. Core tests alone do not prove
 app adapter behavior. Keep full Debug/lint gates at stable integration points.
+Paging wires are asserted through the real ordinary parser: reported
+page/size/requested-out-of-range, reported page without size, absent page with
+and without an out-of-range request, and size-without-page leaving the 20-row
+window intact; `ReadThreadContainerParityTest` keeps the annotated fields out of
+the frozen snapshot.
 
 ## 7. Wrong vs Correct
 

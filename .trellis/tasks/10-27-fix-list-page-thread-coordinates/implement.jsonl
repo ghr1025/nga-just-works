@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Server page, global floor and adapter index are distinct coordinates; reported page size rules and conservative paging degrade"}
+{"file": ".trellis/spec/backend/ordinary-read-wire-contract.md", "reason": "The app adapter owns ThreadData mapping; core already exposes __PAGE/__R__ROWS_PAGE and must not be changed"}
+{"file": ".trellis/spec/backend/thread-page-cache-contract.md", "reason": "Effective page, page size and page basis are validated on cache replay; legacy replay keeps its stored page"}
+{"file": ".trellis/tasks/archive/2026-10/10-03-floor-favorite-restore/research/findings.md", "reason": "Section 3 documents the same single-tab page-coordinate defect and the old pager masking behavior"}

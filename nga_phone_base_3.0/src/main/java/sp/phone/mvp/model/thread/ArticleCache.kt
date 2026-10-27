@@ -139,7 +139,8 @@ class ArticleCacheReplay @JvmOverloads constructor(private val decoder: ArticleC
         val query = ArticleQuery(stored.entry.tid, 0, 0, 0)
         val data = decoder.decode(stored.source, stored.raw, query, stored.requestedPage)
             ?: throw IOException("Unreadable cache page")
-        val paging = if (stored.entry.isLegacy()) ArticlePagingInfo.normal(query, stored.page, data)
+        // A legacy file is keyed by its stored page, which stays authoritative over the raw __PAGE.
+        val paging = if (stored.entry.isLegacy()) ArticlePagingInfo.normal(query, stored.page, data, reportedPage = null)
             else requireNotNull(data.pagingInfo)
         require(paging.query == query && paging.resolvedTid == stored.entry.tid && paging.effectivePage == stored.page)
         if (!stored.entry.isLegacy()) {
