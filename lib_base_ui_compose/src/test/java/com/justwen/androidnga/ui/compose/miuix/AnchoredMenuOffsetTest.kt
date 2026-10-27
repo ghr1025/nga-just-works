@@ -40,4 +40,13 @@ class AnchoredMenuOffsetTest {
         val leftAnchor = IntRect(10, 500, 60, 560)
         assertEquals(52, anchoredMenuOffset(leftAnchor, window, menu, margin).x)
     }
+
+    @Test
+    fun belowEndAlignsTheRightEdgesUnderTheAnchor() {
+        val m = IntRect(32, 10, 32, 10)
+        val button = IntRect(840, 291, 924, 375)
+        assertEquals(IntOffset(924 - 600, 385), belowEndOffset(button, window, IntSize(600, 500), m))
+        // wider than the room left of the button: kept inside the left margin
+        assertEquals(32, belowEndOffset(button, window, IntSize(1000, 500), m).x)
+    }
 }

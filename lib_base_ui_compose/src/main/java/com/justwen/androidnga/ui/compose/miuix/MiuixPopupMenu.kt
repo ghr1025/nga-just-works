@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.view.get
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -53,10 +54,11 @@ object MiuixPopupMenu {
 
     /**
      * Opens from the anchor like a context menu: right edges aligned, below the anchor when the
-     * menu fits under it, otherwise above it (ContextMenuPositionProvider with TopEnd only opens
-     * downwards, so for a button low on the screen it was pushed to the bottom edge).
+     * menu fits under it, otherwise above it, and never closer to the screen edge than the Miuix
+     * side margin (ContextMenuPositionProvider with TopEnd only opens downwards and clamps to the
+     * bare window edge). Also usable as the provider of a composable WindowListPopup.
      */
-    internal val AnchoredMenuPositionProvider = object : PopupPositionProvider {
+    val AnchoredMenuPositionProvider: PopupPositionProvider = object : PopupPositionProvider {
         override fun calculatePosition(
             anchorBounds: IntRect,
             windowBounds: IntRect,
@@ -68,6 +70,23 @@ object MiuixPopupMenu {
 
         override fun getMargins(): PaddingValues =
             ListPopupDefaults.ContextMenuPositionProvider.getMargins()
+    }
+
+    /**
+     * Opens just below the anchor with its right edge on the anchor's right edge (for a button
+     * inside a card, e.g. the drawer's account switcher), kept 12dp inside the window.
+     */
+    val BelowEndPositionProvider: PopupPositionProvider = object : PopupPositionProvider {
+        override fun calculatePosition(
+            anchorBounds: IntRect,
+            windowBounds: IntRect,
+            layoutDirection: LayoutDirection,
+            popupContentSize: IntSize,
+            popupMargin: IntRect,
+            alignment: PopupPositionProvider.Align,
+        ): IntOffset = belowEndOffset(anchorBounds, windowBounds, popupContentSize, popupMargin)
+
+        override fun getMargins(): PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
     }
 
     /** [onItemClick] receives the chosen enabled item (java.util.function.Consumer, for Java callers). */
@@ -170,4 +189,19 @@ internal fun anchoredMenuOffset(anchor: IntRect, window: IntRect, popup: IntSize
         else -> window.bottom - margin.bottom - popup.height
     }.coerceIn(window.top + margin.top, (window.bottom - margin.bottom - popup.height).coerceAtLeast(window.top + margin.top))
     return IntOffset(x, y)
+}
+
+/**
+ * Below the anchor (by [margin].top) with right edges aligned, clamped so the popup stays [margin]
+ * inside [window] on every side.
+ */
+internal fun belowEndOffset(anchor: IntRect, window: IntRect, popup: IntSize, margin: IntRect): IntOffset {
+    val minX = window.left + margin.left
+    val maxX = (window.right - margin.right - popup.width).coerceAtLeast(minX)
+    val minY = window.top + margin.top
+    val maxY = (window.bottom - margin.bottom - popup.height).coerceAtLeast(minY)
+    return IntOffset(
+        x = (anchor.right - popup.width).coerceIn(minX, maxX),
+        y = (anchor.bottom + margin.top).coerceIn(minY, maxY),
+    )
 }

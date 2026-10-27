@@ -2,40 +2,51 @@ package gov.anzong.androidnga.activity.compose.drawer
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.miuix.MiuixActions
 import com.justwen.androidnga.ui.compose.miuix.MiuixNavIcon
 import com.justwen.androidnga.ui.compose.miuix.MiuixNavigationIcon
+import com.justwen.androidnga.ui.compose.miuix.MiuixPopupMenu
 import com.justwen.androidnga.ui.compose.miuix.NgaMiuixTheme
 import com.justwen.androidnga.ui.compose.miuix.toMiuixAction
 import com.justwen.androidnga.ui.compose.widget.OptionMenuData
@@ -47,14 +58,19 @@ import kotlinx.coroutines.launch
 import sp.phone.common.User
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.DropdownImpl
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.PopupPositionProvider
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.SmallTopAppBar
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.extra.SuperArrow
+import top.yukonga.miuix.kmp.extra.WindowListPopup
 import top.yukonga.miuix.kmp.icon.MiuixIcons
-import top.yukonga.miuix.kmp.icon.extended.ChevronForward
+import top.yukonga.miuix.kmp.icon.extended.Replace
+import top.yukonga.miuix.kmp.theme.LocalDismissState
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.miuixShape
 
@@ -244,13 +260,7 @@ private fun MiuixAccountCard(onAccountClick: (User?, Int) -> Unit) {
             },
             endActions = {
                 if (count > 1) {
-                    IconButton(onClick = { UserManager.toggleUser(true) }) {
-                        Icon(
-                            imageVector = MiuixIcons.ChevronForward,
-                            contentDescription = "切换账号",
-                            tint = colors.onSurfaceVariantActions,
-                        )
-                    }
+                    AccountSwitcher(users = users, activeIndex = (activeIndex ?: 0).coerceAtLeast(0) % count)
                 }
             },
         ) {
@@ -262,16 +272,110 @@ private fun MiuixAccountCard(onAccountClick: (User?, Int) -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = when {
-                    count > 1 -> "已登录${count}个账户，点击切换 · UID ${user?.userId}"
-                    count == 1 -> "UID ${user?.userId}"
-                    else -> "点击登录账号"
-                },
+                text = if (user != null) "UID ${user.userId}" else "点击登录账号",
                 style = MiuixTheme.textStyles.body2,
                 color = colors.onSurfaceVariantSummary,
                 modifier = Modifier.padding(top = 2.dp),
-                maxLines = 2,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
 }
+
+/**
+ * Switch button of the account card with several accounts: a Miuix "switch" icon with the number of
+ * accounts as a small badge; it opens the Miuix list popup of the accounts, the current one checked,
+ * opening downwards from the button like the top bar's overflow menu.
+ */
+@Composable
+private fun AccountSwitcher(users: List<User>, activeIndex: Int) {
+    val colors = MiuixTheme.colorScheme
+    var showPopup by remember { mutableStateOf(false) }
+    var holdDown by remember { mutableStateOf(false) }
+    Box {
+        IconButton(
+            onClick = {
+                showPopup = true
+                holdDown = true
+            },
+            holdDownState = holdDown,
+        ) {
+            Icon(
+                imageVector = MiuixIcons.Replace,
+                contentDescription = "切换账号，共${users.size}个",
+                tint = colors.onSurfaceVariantActions,
+            )
+        }
+        // Account count badge on the button's top-end corner.
+        Text(
+            text = users.size.toString(),
+            color = colors.onPrimary,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 2.dp, y = (-2).dp)
+                .defaultMinSize(minWidth = 16.dp)
+                .clip(CircleShape)
+                .background(colors.primary)
+                .padding(horizontal = 4.dp, vertical = 1.dp),
+        )
+        WindowListPopup(
+            show = showPopup,
+            // Right edge on the button's right edge, just below it, never past the side margin
+            // (the stock context-menu provider insets the right edge by 20dp and clamps the left
+            // edge to the bare screen edge).
+            popupPositionProvider = MiuixPopupMenu.BelowEndPositionProvider,
+            alignment = PopupPositionProvider.Align.TopEnd,
+            onDismissRequest = { showPopup = false },
+            onDismissFinished = { holdDown = false },
+        ) {
+            val dismiss = LocalDismissState.current
+            ListPopupColumn {
+                users.forEachIndexed { index, account ->
+                    key(account.userId) {
+                        DropdownImpl(
+                            // DropdownImpl wraps text up to 200dp and the list grows to fit; a capped
+                            // one-line name keeps the popup narrow enough to stay aligned with the
+                            // switch button instead of being pushed to the side margin.
+                            text = accountLabel(account),
+                            optionSize = users.size,
+                            isSelected = index == activeIndex,
+                            index = index,
+                            onSelectedIndexChange = { selected ->
+                                dismiss?.invoke()
+                                if (selected != activeIndex) UserManager.setActiveIndex(selected)
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Account name for the switch popup: nickname (or UID), cut to [MAX_LABEL_WIDTH] display columns
+ * (CJK characters count two, Latin one) so a long name stays on one line.
+ */
+internal fun accountLabel(account: User): String {
+    val name = account.nickName?.takeIf { it.isNotEmpty() } ?: "UID ${account.userId}"
+    return ellipsizeColumns(name, MAX_LABEL_WIDTH)
+}
+
+internal fun ellipsizeColumns(text: String, maxColumns: Int): String {
+    fun columns(c: Char) = if (c.code >= 0x2E80) 2 else 1
+    if (text.sumOf(::columns) <= maxColumns) return text
+    val out = StringBuilder()
+    var used = 0
+    for (c in text) {
+        if (used + columns(c) > maxColumns - 1) break
+        out.append(c)
+        used += columns(c)
+    }
+    return out.append('…').toString()
+}
+
+private const val MAX_LABEL_WIDTH = 20
