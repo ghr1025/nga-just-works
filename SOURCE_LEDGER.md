@@ -34,7 +34,8 @@ endorsed by NGA or the upstream author.
   (Apache License 2.0), declared as Maven dependencies. Vector drawables named
   `ic_miuix_*` that carry a "from compose-miuix-ui miuix-icons 0.8.8" header
   are converted from `MiuixIcons` path data of the same release; the thumb
-  up/down and globe drawables are original outline icons drawn for this app.
+  up/down, globe, text format and emoticon drawables are original outline icons
+  drawn for this app.
   `miuix_alert_dialog*.xml` layouts are derived from AndroidX AppCompat 1.7.1
   `abc_alert_dialog_*_material.xml` (Apache License 2.0) and keep its view ids.
 
