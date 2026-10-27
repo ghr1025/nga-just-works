@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
+import com.justwen.androidnga.ui.compose.miuix.MiuixPopupMenu;
+
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -26,6 +28,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.common.PreferenceKey;
+import sp.phone.theme.ThemeManager;
 import sp.phone.ai.summary.FloorSummaryInput;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.User;
@@ -178,15 +181,21 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             PopupMenu popupMenu = new PopupMenu(getContext(), view);
             popupMenu.inflate(menuId);
             onPrepareOptionsMenu(popupMenu.getMenu(), (ThreadRowInfo) view.getTag());
-            popupMenu.show();
-            popupMenu.setOnMenuItemClickListener(item -> {
+            PopupMenu.OnMenuItemClickListener onItem = item -> {
                 if (item.getItemId() == R.id.menu_ai_summary
                         && menuContentGeneration != mAiContentGeneration) {
                     return true;
                 }
                 mMenuItemClickListener.setThreadRowInfo(clickedRow);
                 return mMenuItemClickListener.onMenuItemClick(item);
-            });
+            };
+            if (ThemeManager.getInstance().isMiuixStyle()) {
+                // Same menu and handlers, shown as the Miuix floating context menu.
+                MiuixPopupMenu.show(view, popupMenu.getMenu(), item -> onItem.onMenuItemClick(item));
+                return;
+            }
+            popupMenu.show();
+            popupMenu.setOnMenuItemClickListener(onItem);
         }
 
         private void onPrepareOptionsMenu(Menu menu, ThreadRowInfo row) {
