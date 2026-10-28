@@ -92,6 +92,9 @@ public class PreferenceKey {
     /** Predictive back gesture; off by default (see PredictiveBack in lib_base_ui_compose). */
     public static final String KEY_PREDICTIVE_BACK = "key_predictive_back";
 
+    /** Tablet two-pane layout (Activity Embedding, landscape tablets only); on by default. */
+    public static final String KEY_TABLET_SPLIT = "key_tablet_split";
+
     public static final String VERSION_MAJOR_CODE = "version_major_code";
 
     public static final String VERSION_MIRROR_CODE = "version_mirror_code";

@@ -43,6 +43,12 @@
             android:title="@string/setting_title_predictive_back" />
 
         <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_tablet_split"
+            android:summary="@string/setting_tablet_split_summary"
+            android:title="@string/setting_title_tablet_split" />
+
+        <SwitchPreference
             android:defaultValue="false"
             android:key="nightmode"
             android:title="@string/nightmode" />

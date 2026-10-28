@@ -287,11 +287,13 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             if (row.getISANONYMOUS()) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
             } else if (ArticleRowPresentation.hasUser(row)) {
+                // Start from the page, not the application context: the tablet split pairs the
+                // profile with the thread only when the thread's activity launches it.
                 ARouter.getInstance()
                         .build(ARouterConstants.ACTIVITY_PROFILE)
                         .withString("mode", "uid")
                         .withString("uid", String.valueOf(row.getAuthorid()))
-                        .navigation();
+                        .navigation(view.getContext());
             }
         }
     };

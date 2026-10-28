@@ -44,6 +44,7 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
@@ -232,7 +233,6 @@ fun ForumBoardBookmarkContent(
     val bookmarks by forumBoardViewModel.bookmarkBoardsLiveData.observeAsState(
         bookmark.children?.toList().orEmpty()
     )
-    val maxColumn = 3
     val gridState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -285,7 +285,7 @@ fun ForumBoardBookmarkContent(
         }
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(maxColumn),
+            columns = boardGridColumns(),
             state = gridState,
             modifier = Modifier
                 .fillMaxSize()
@@ -405,7 +405,7 @@ fun ForumBoardBookmarkContent(
                         },
                 )
             }
-            item(span = { GridItemSpan(maxColumn) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 val paddingValues = WindowInsets.navigationBars.asPaddingValues()
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
@@ -429,9 +429,8 @@ fun ForumBoardContent(
     } else {
         val revision = forumBoardViewModel.boardContentRevision
         val boardList = remember(boardData.id, revision) { boardRenderSnapshot(boardData) }
-        val maxColumn = 3
         LazyVerticalGrid(
-            columns = GridCells.Fixed(maxColumn),
+            columns = boardGridColumns(),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 8.dp, end = 8.dp)
@@ -439,7 +438,7 @@ fun ForumBoardContent(
             boardList.forEach { group ->
                 val it = group.board
                 if (it.type == BoardEntity.BoardType.GROUP) {
-                    item(span = { GridItemSpan(maxColumn) }) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         ForumBoardGroupView(it)
                     }
                     group.children.let { data ->
@@ -453,7 +452,7 @@ fun ForumBoardContent(
                     }
                 }
             }
-            item(span = { GridItemSpan(maxColumn) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 val paddingValues = WindowInsets.navigationBars.asPaddingValues()
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
@@ -472,4 +471,18 @@ private fun moveBookmarkWithPersistence(
     }
     forumBoardViewModel.commitBookmarkReorder(snapshot)
     return true
+}
+
+/**
+ * Board grid columns: three on phones as before, more on wide windows (seven on a landscape
+ * tablet) instead of stretching three tiles across the screen. Tiles stay at least 160dp wide.
+ */
+private fun boardGridColumns(): GridCells = object : GridCells {
+    override fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int> {
+        val minTile = 160.dp.roundToPx()
+        val count = (availableSize / minTile).coerceIn(3, 8)
+        val base = availableSize / count
+        val remainder = availableSize % count
+        return List(count) { base + if (it < remainder) 1 else 0 }
+    }
 }
