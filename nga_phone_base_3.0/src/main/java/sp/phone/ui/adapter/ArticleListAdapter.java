@@ -72,6 +72,9 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private static final int VIEW_TYPE_NATIVE_VIEW = 1;
 
+    /** notifyItemChanged payload: only the score and the vote state of the floor changed. */
+    public static final Object PAYLOAD_VOTE = new Object();
+
     private Context mContext;
 
     private FragmentManager mFragmentManager;
@@ -475,6 +478,11 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     @Override
     public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position,
                                  @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty() && payloads.stream().allMatch(item -> item == PAYLOAD_VOTE)) {
+            ThreadRowInfo row = mData.getRowList().get(position);
+            if (row != null) onBindVote(holder, row, true);
+            return;
+        }
         if (!payloads.isEmpty() && payloads.stream().allMatch(AuthorMetadataPayload.class::isInstance)) {
             ThreadRowInfo row = mData.getRowList().get(position);
             for (Object item : payloads) {
@@ -488,6 +496,20 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             return;
         }
         onBindViewHolder(holder, position);
+    }
+
+    /**
+     * Score and, in the Miuix appearance, the filled thumb of the user's vote; [animate] plays the
+     * outline/filled change (vote payloads), plain binds set it directly.
+     */
+    private void onBindVote(@NonNull ArticleViewHolder holder, @NonNull ThreadRowInfo row, boolean animate) {
+        boolean scoreKnown = row.getPresentation() == null || row.getPresentation().scoreKnown;
+        holder.scoreTv.setVisibility(scoreKnown ? View.VISIBLE : View.GONE);
+        String score = scoreKnown ? String.valueOf(row.getScore()) : "";
+        MiuixReaderStyle.setScore(holder.scoreTv, score, animate && mMiuixStyle);
+        if (mMiuixStyle) {
+            MiuixReaderStyle.bindVoteState(holder.supportBtn, holder.opposeBtn, row.getVoteState(), animate);
+        }
     }
 
     @Override
@@ -521,9 +543,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         holder.floorTv.setVisibility(hasFloor ? View.VISIBLE : View.GONE);
         holder.floorTv.setText(hasFloor ? MessageFormat.format("[{0} 楼]", String.valueOf(row.getLou())) : "");
         holder.postTimeTv.setText(row.getPostdate());
-        boolean scoreKnown = row.getPresentation() == null || row.getPresentation().scoreKnown;
-        holder.scoreTv.setVisibility(scoreKnown ? View.VISIBLE : View.GONE);
-        holder.scoreTv.setText(scoreKnown ? String.valueOf(row.getScore()) : "");
+        onBindVote(holder, row, false);
 
         boolean post = ArticleRowPresentation.isPost(row) && !FunctionUtils.isComment(row);
         boolean addressable = row.getTid() > 0 && (row.getPid() > 0 || hasFloor && row.getLou() == 0);
