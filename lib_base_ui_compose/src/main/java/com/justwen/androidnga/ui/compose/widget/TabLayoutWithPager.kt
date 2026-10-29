@@ -113,8 +113,6 @@ fun TabLayoutWithPager(
     onTabReorderCommit: (() -> Unit)? = null,
     onTabReorderCancel: (() -> Unit)? = null,
     onTabReorderActiveChanged: (Boolean) -> Unit = {},
-    /** The tab row and pager together (e.g. a width cap for the compact home layout). */
-    modifier: Modifier = Modifier,
     content: @Composable ((index: Int) -> Unit)? = null,
 ) {
     val pagerState = rememberPagerState(pageCount = { tabs.size }, initialPage = initialPage)
@@ -409,7 +407,7 @@ fun TabLayoutWithPager(
         }
     }
 
-    Column(modifier) {
+    Column {
         if (miuixTabs != null) {
             // Miuix TabRow takes only strings, so it cannot carry the per-tab reorder gestures,
             // bounds tracking and accessibility actions above. This row reproduces its look (rounded

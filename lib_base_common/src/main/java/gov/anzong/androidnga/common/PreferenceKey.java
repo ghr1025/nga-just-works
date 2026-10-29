@@ -95,7 +95,7 @@ public class PreferenceKey {
     /** Tablet two-pane layout (Activity Embedding, landscape tablets only); on by default. */
     public static final String KEY_TABLET_SPLIT = "key_tablet_split";
 
-    /** 首页布局："fill" 宽窗口下板块宫格铺满（默认），"compact" 保持手机宽度居中。 */
+    /** 首页布局："fill" 平铺（默认，宫格随宽度加列），"compact" 紧凑（首页全屏时宫格保持手机宽度居中）。 */
     public static final String KEY_HOME_LAYOUT = "key_home_layout";
 
     public static final String VERSION_MAJOR_CODE = "version_major_code";
