@@ -1,10 +1,12 @@
 package gov.anzong.androidnga.activity.compose.board
 
 import android.content.Context
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import android.content.SharedPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -31,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,15 +54,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.miuix.isMiuixComposition
-import top.yukonga.miuix.kmp.basic.SmallTitle
 import com.justwen.androidnga.ui.compose.widget.PagerInteractionState
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
 import com.justwent.androidnga.bu.UserManager
 import gov.anzong.androidnga.R
 import gov.anzong.androidnga.base.util.ContextUtils
+import gov.anzong.androidnga.base.util.PreferenceUtils
+import gov.anzong.androidnga.common.PreferenceKey
 import gov.anzong.androidnga.core.board.data.BoardEntity
-import kotlinx.coroutines.launch
 import kotlin.math.abs
+import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.basic.SmallTitle
 
 
 @Suppress("ModifierParameter")
@@ -85,49 +92,84 @@ fun ForumBoardView(
             currentOnFavoriteReorderActiveChanged(false)
         }
     }
+    val compact = rememberHomeLayoutCompact()
     boardData?.let { boards ->
         val tabs = boards.map { it.name }
         val tabKeys = boards.map { it.id }
         val initialPage = if (forumBoardViewModel.bookmarkSizeLiveData.value!! > 0) 0 else 1
-        TabLayoutWithPager(
-            tabs = tabs,
-            initialPage = initialPage,
-            userScrollEnabled = pagerUserScrollEnabled &&
-                !favoriteReorderActive &&
-                !tabReorderActive,
-            pagerModifier = pagerModifier,
-            onPagerInteractionChanged = onPagerInteractionChanged,
-            tabKeys = tabKeys,
-            reorderableTabRange = if (boards.size > 1) 1..boards.lastIndex else null,
-            onTabReorderStart = { tabKey ->
-                if (tabKey != "bookmark") {
-                    homeOrderSnapshot = forumBoardViewModel.beginHomeBoardReorder()
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+            CompositionLocalProvider(LocalHomeLayoutCompact provides compact) {
+                TabLayoutWithPager(
+                    modifier = if (compact) Modifier.widthIn(max = COMPACT_HOME_MAX_WIDTH) else Modifier,
+                    tabs = tabs,
+                    initialPage = initialPage,
+                    userScrollEnabled = pagerUserScrollEnabled &&
+                        !favoriteReorderActive &&
+                        !tabReorderActive,
+                    pagerModifier = pagerModifier,
+                    onPagerInteractionChanged = onPagerInteractionChanged,
+                    tabKeys = tabKeys,
+                    reorderableTabRange = if (boards.size > 1) 1..boards.lastIndex else null,
+                    onTabReorderStart = { tabKey ->
+                        if (tabKey != "bookmark") {
+                            homeOrderSnapshot = forumBoardViewModel.beginHomeBoardReorder()
+                        }
+                    },
+                    onTabReorderMove = { fromIndex, toIndex ->
+                        if (fromIndex <= 0 || toIndex <= 0) {
+                            false
+                        } else {
+                            forumBoardViewModel.moveHomeBoard(fromIndex - 1, toIndex - 1)
+                        }
+                    },
+                    onTabReorderCommit = {
+                        homeOrderSnapshot?.let(forumBoardViewModel::commitHomeBoardReorder)
+                        homeOrderSnapshot = null
+                    },
+                    onTabReorderCancel = {
+                        homeOrderSnapshot?.let(forumBoardViewModel::cancelHomeBoardReorder)
+                        homeOrderSnapshot = null
+                    },
+                    onTabReorderActiveChanged = { tabReorderActive = it },
+                ) { pageIndex ->
+                    ForumBoardContent(pageIndex, forumBoardViewModel) { active ->
+                        favoriteReorderActive = active
+                        currentOnFavoriteReorderActiveChanged(active)
+                    }
                 }
-            },
-            onTabReorderMove = { fromIndex, toIndex ->
-                if (fromIndex <= 0 || toIndex <= 0) {
-                    false
-                } else {
-                    forumBoardViewModel.moveHomeBoard(fromIndex - 1, toIndex - 1)
-                }
-            },
-            onTabReorderCommit = {
-                homeOrderSnapshot?.let(forumBoardViewModel::commitHomeBoardReorder)
-                homeOrderSnapshot = null
-            },
-            onTabReorderCancel = {
-                homeOrderSnapshot?.let(forumBoardViewModel::cancelHomeBoardReorder)
-                homeOrderSnapshot = null
-            },
-            onTabReorderActiveChanged = { tabReorderActive = it },
-        ) { pageIndex ->
-            ForumBoardContent(pageIndex, forumBoardViewModel) { active ->
-                favoriteReorderActive = active
-                currentOnFavoriteReorderActiveChanged(active)
             }
         }
     }
 }
+
+/**
+ * 首页布局的紧凑样式：板块标签行和宫格不超过手机宽度并居中，宫格保持 3 列。只在窗口比它宽时
+ * 才看得出来（平板全屏），手机和平板分栏后的左栏本来就不比它宽，不受影响。
+ */
+private val COMPACT_HOME_MAX_WIDTH = 480.dp
+
+private val LocalHomeLayoutCompact = staticCompositionLocalOf { false }
+
+/** 设置里的「首页布局」，在设置页修改后回到首页即生效。 */
+@Composable
+private fun rememberHomeLayoutCompact(): Boolean {
+    var compact by remember { mutableStateOf(readHomeLayoutCompact()) }
+    DisposableEffect(Unit) {
+        val preferences = PreferenceUtils.getDefaultPreferences()
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == PreferenceKey.KEY_HOME_LAYOUT) compact = readHomeLayoutCompact()
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+    return compact
+}
+
+private fun readHomeLayoutCompact(): Boolean =
+    PreferenceUtils.getData(PreferenceKey.KEY_HOME_LAYOUT, HOME_LAYOUT_FILL) == HOME_LAYOUT_COMPACT
+
+private const val HOME_LAYOUT_FILL = "fill"
+private const val HOME_LAYOUT_COMPACT = "compact"
 
 @Composable
 fun ForumBoardGroupView(board: BoardEntity, context: Context = ContextUtils.getContext()) {
@@ -285,7 +327,7 @@ fun ForumBoardBookmarkContent(
         }
 
         LazyVerticalGrid(
-            columns = boardGridColumns(),
+            columns = boardGridColumns(LocalHomeLayoutCompact.current),
             state = gridState,
             modifier = Modifier
                 .fillMaxSize()
@@ -430,7 +472,7 @@ fun ForumBoardContent(
         val revision = forumBoardViewModel.boardContentRevision
         val boardList = remember(boardData.id, revision) { boardRenderSnapshot(boardData) }
         LazyVerticalGrid(
-            columns = boardGridColumns(),
+            columns = boardGridColumns(LocalHomeLayoutCompact.current),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 8.dp, end = 8.dp)
@@ -476,11 +518,12 @@ private fun moveBookmarkWithPersistence(
 /**
  * Board grid columns: three on phones as before, more on wide windows (seven on a landscape
  * tablet) instead of stretching three tiles across the screen. Tiles stay at least 160dp wide.
+ * The compact home layout always keeps three.
  */
-private fun boardGridColumns(): GridCells = object : GridCells {
+private fun boardGridColumns(compact: Boolean): GridCells = object : GridCells {
     override fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int> {
         val minTile = 160.dp.roundToPx()
-        val count = (availableSize / minTile).coerceIn(3, 8)
+        val count = if (compact) 3 else (availableSize / minTile).coerceIn(3, 8)
         val base = availableSize / count
         val remainder = availableSize % count
         return List(count) { base + if (it < remainder) 1 else 0 }
